@@ -200,18 +200,34 @@ class GeminiHandler {
       return;
     }
 
-    const shadowInputHandle = await this.page.evaluateHandle(() => {
-      const uploader = document.querySelector('uploader');
-      if (!uploader || !uploader.shadowRoot) return null;
-      return uploader.shadowRoot.querySelector('input[type="file"]');
+    const deepInputHandle = await this.page.evaluateHandle(() => {
+      const visit = (root) => {
+        if (!root) return null;
+        if (root.querySelector) {
+          const direct = root.querySelector('input[type="file"]');
+          if (direct) return direct;
+        }
+        if (!root.querySelectorAll) return null;
+        const nodes = root.querySelectorAll('*');
+        for (const node of nodes) {
+          if (node.shadowRoot) {
+            const found = visit(node.shadowRoot);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      return visit(document);
     });
-    const shadowInput = shadowInputHandle.asElement();
-    if (shadowInput) {
-      await shadowInput.setInputFiles(imagePath);
-      await shadowInputHandle.dispose();
+    const deepInput = deepInputHandle.asElement();
+    if (deepInput) {
+      this.log('Found file input in shadow DOM.');
+      await deepInput.setInputFiles(imagePath);
+      await deepInputHandle.dispose();
       return;
     }
-    await shadowInputHandle.dispose();
+    await deepInputHandle.dispose();
+    this.log('No file input found in shadow DOM.');
 
     const hiddenImageButton = this.page.locator(
       '[data-test-id="hidden-local-image-upload-button"]'
