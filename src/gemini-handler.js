@@ -378,34 +378,35 @@ class GeminiHandler {
   }
 
   async _waitForDownloadButton() {
-    const downloadCandidates = [
-      () => this.page.getByRole('button', { name: /download full size/i }),
-      () => this.page.getByRole('button', { name: /download/i }),
-      () => this.page.locator('[aria-label*="download" i]')
-    ];
+    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
+    const start = Date.now();
 
-    return waitForAnyVisible(
-      this.page,
-      downloadCandidates,
-      this.config.processingTimeoutMs
-    );
+    while (Date.now() - start < this.config.processingTimeoutMs) {
+      const count = await locator.count();
+      if (count > 0) {
+        const last = locator.last();
+        if (await isVisible(last)) {
+          return last;
+        }
+      }
+      await delay(DEFAULT_POLL_MS);
+    }
+
+    throw new Error('Timeout waiting for download button.');
   }
 
   async _waitForDownloadButtonWithHeartbeat() {
-    const downloadCandidates = [
-      () => this.page.getByRole('button', { name: /download full size/i }),
-      () => this.page.getByRole('button', { name: /download/i }),
-      () => this.page.locator('[aria-label*="download" i]')
-    ];
+    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
 
     const start = Date.now();
     let lastLog = start;
 
     while (Date.now() - start < this.config.processingTimeoutMs) {
-      for (const candidate of downloadCandidates) {
-        const locator = candidate();
-        if (await isVisible(locator)) {
-          return locator;
+      const count = await locator.count();
+      if (count > 0) {
+        const last = locator.last();
+        if (await isVisible(last)) {
+          return last;
         }
       }
 
