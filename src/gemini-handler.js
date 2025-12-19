@@ -240,14 +240,9 @@ class GeminiHandler {
           '[data-test-id="local-images-files-uploader-button"]'
         );
         await uploadFilesButton.first().waitFor({ state: 'visible', timeout: 5000 });
-        await uploadFilesButton.first().click();
-
-        const hiddenSelector = this.page.locator(
-          '.hidden-local-file-image-selector-button'
-        );
         const [chooser] = await Promise.all([
           this.page.waitForEvent('filechooser', { timeout: 15000 }),
-          hiddenSelector.first().click({ force: true })
+          uploadFilesButton.first().click()
         ]);
         await chooser.setFiles(imagePath);
         return;
@@ -261,12 +256,13 @@ class GeminiHandler {
       this.log('Clicking plus button for upload...');
       await plusButton.first().click();
       try {
-        const hiddenSelector = this.page.locator(
-          '.hidden-local-file-image-selector-button'
+        const uploadFilesButton = this.page.locator(
+          '[data-test-id="local-images-files-uploader-button"]'
         );
+        await uploadFilesButton.first().waitFor({ state: 'visible', timeout: 5000 });
         const [chooser] = await Promise.all([
           this.page.waitForEvent('filechooser', { timeout: 15000 }),
-          hiddenSelector.first().click({ force: true })
+          uploadFilesButton.first().click()
         ]);
         await chooser.setFiles(imagePath);
         return;
