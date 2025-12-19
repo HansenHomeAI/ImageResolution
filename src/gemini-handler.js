@@ -229,6 +229,33 @@ class GeminiHandler {
     await deepInputHandle.dispose();
     this.log('No file input found in shadow DOM.');
 
+    const uploadMenuButton = this.page.getByRole('button', {
+      name: /open upload file menu/i
+    });
+    if (await isVisible(uploadMenuButton)) {
+      this.log('Opening upload menu...');
+      await uploadMenuButton.click();
+      const menuItemCandidates = [
+        () => this.page.getByRole('menuitem', { name: /upload image/i }),
+        () => this.page.getByRole('menuitem', { name: /upload/i })
+      ];
+      try {
+        const menuItem = await waitForAnyVisible(
+          this.page,
+          menuItemCandidates,
+          5000
+        );
+        const [chooser] = await Promise.all([
+          this.page.waitForEvent('filechooser', { timeout: 15000 }),
+          menuItem.click()
+        ]);
+        await chooser.setFiles(imagePath);
+        return;
+      } catch (err) {
+        this.log(`Upload menu path failed: ${err.message || err}`);
+      }
+    }
+
     const hiddenImageButton = this.page.locator(
       '[data-test-id="hidden-local-image-upload-button"]'
     );
@@ -249,8 +276,7 @@ class GeminiHandler {
       () => this.page.locator('[data-test-id*="upload" i]'),
       () => this.page.getByRole('button', { name: /upload/i }),
       () => this.page.getByRole('button', { name: /add file/i }),
-      () => this.page.getByRole('button', { name: /\+/ }),
-      () => this.page.getByRole('button', { name: /open upload file menu/i })
+      () => this.page.getByRole('button', { name: /\+/ })
     ];
 
     const button = await waitForAnyVisible(
@@ -260,19 +286,9 @@ class GeminiHandler {
     );
 
     try {
-      await button.click();
-      const menuItemCandidates = [
-        () => this.page.getByRole('menuitem', { name: /upload image/i }),
-        () => this.page.getByRole('menuitem', { name: /upload/i })
-      ];
-      const menuItem = await waitForAnyVisible(
-        this.page,
-        menuItemCandidates,
-        5000
-      );
       const [chooser] = await Promise.all([
         this.page.waitForEvent('filechooser', { timeout: 15000 }),
-        menuItem.click()
+        button.click()
       ]);
       await chooser.setFiles(imagePath);
     } catch (err) {
