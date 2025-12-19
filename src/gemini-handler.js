@@ -240,7 +240,7 @@ class GeminiHandler {
         await uploadFilesButton.first().waitFor({ state: 'visible', timeout: 5000 });
         const [chooser] = await Promise.all([
           this.page.waitForEvent('filechooser', { timeout: 15000 }),
-          uploadFilesButton.first().click()
+          uploadFilesButton.first().click({ force: true })
         ]);
         await chooser.setFiles(imagePath);
         return;
@@ -260,7 +260,7 @@ class GeminiHandler {
         await uploadFilesButton.first().waitFor({ state: 'visible', timeout: 5000 });
         const [chooser] = await Promise.all([
           this.page.waitForEvent('filechooser', { timeout: 15000 }),
-          uploadFilesButton.first().click()
+          uploadFilesButton.first().click({ force: true })
         ]);
         await chooser.setFiles(imagePath);
         return;
