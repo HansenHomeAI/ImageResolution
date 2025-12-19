@@ -37,6 +37,23 @@ async function cleanupProfileLocks(config, log) {
   }
 
   if (hasChromeTesting) {
+    log('Chrome for Testing is running. Waiting for it to close...');
+    const start = Date.now();
+    while (Date.now() - start < 5 * 60 * 1000) {
+      try {
+        const psOutput = execSync('ps -ax').toString();
+        if (!psOutput.includes('Google Chrome for Testing')) {
+          hasChromeTesting = false;
+          break;
+        }
+      } catch (err) {
+        // If ps fails, keep waiting.
+      }
+      await delay(2000);
+    }
+  }
+
+  if (hasChromeTesting) {
     throw new Error(
       'Chrome for Testing appears to be running; close it before retrying.'
     );
