@@ -104,17 +104,30 @@ class GeminiHandler {
   }
 
   async ensureLoggedIn() {
+    const signedOutIndicators = [
+      () => this.page.locator('[data-test-id="signed-out-disclaimer"]'),
+      () => this.page.getByText(/sign in/i),
+      () => this.page.locator('.signed-out-greeting')
+    ];
+
     const loginIndicators = [
-      () => this.page.getByText('PRO', { exact: false }),
-      () => this.page.locator('[data-testid="pro-badge"]'),
-      () => this.page.getByRole('button', { name: /new chat/i })
+      () => this.page.locator('[data-test-id="bard-mode-menu-button"]'),
+      () => this.page.getByRole('button', { name: /new chat/i }),
+      () => this.page.getByText('PRO', { exact: false })
     ];
 
     this.log('Checking login state...');
-    const isLoggedIn = await this._checkAnyVisible(loginIndicators);
-    if (isLoggedIn) return;
+    if (await this._checkAnyVisible(signedOutIndicators)) {
+      this.log('Signed out. Please log in to Gemini in the opened browser.');
+      for (const indicator of signedOutIndicators) {
+        try {
+          await indicator().first().waitFor({ state: 'hidden', timeout: 15 * 60 * 1000 });
+        } catch (err) {
+          // Ignore and check other indicators.
+        }
+      }
+    }
 
-    this.log('Login required. Please log in to Gemini in the opened browser.');
     await waitForAnyVisible(this.page, loginIndicators, 15 * 60 * 1000);
     this.log('Login detected.');
   }
@@ -134,13 +147,21 @@ class GeminiHandler {
       () => this.page.getByText(/^Fast$/i)
     ];
 
+    let modeButton = null;
     for (const candidate of modeButtonCandidates) {
       const locator = candidate();
       if (await isVisible(locator)) {
-        await locator.first().click();
+        modeButton = locator.first();
         break;
       }
     }
+
+    if (!modeButton) {
+      this.log('Mode selector not found; skipping Fast selection.');
+      return;
+    }
+
+    await modeButton.click();
 
     try {
       const option = await waitForAnyVisible(
@@ -154,7 +175,7 @@ class GeminiHandler {
         () => this.page.getByRole('button', { name: /fast/i })
       ]);
       if (!fastSelected) {
-        throw err;
+        this.log('Fast option not found after opening mode menu.');
       }
     }
     this.log('Fast mode selected.');
