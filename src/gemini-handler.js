@@ -235,24 +235,43 @@ class GeminiHandler {
     if (await isVisible(uploadMenuButton)) {
       this.log('Opening upload menu...');
       await uploadMenuButton.click();
-      const menuItemCandidates = [
-        () => this.page.getByRole('menuitem', { name: /upload image/i }),
-        () => this.page.getByRole('menuitem', { name: /upload/i })
-      ];
       try {
-        const menuItem = await waitForAnyVisible(
-          this.page,
-          menuItemCandidates,
-          5000
+        const uploadFilesButton = this.page.locator(
+          '[data-test-id="local-images-files-uploader-button"]'
+        );
+        await uploadFilesButton.first().waitFor({ state: 'visible', timeout: 5000 });
+        await uploadFilesButton.first().click();
+
+        const hiddenSelector = this.page.locator(
+          '.hidden-local-file-image-selector-button'
         );
         const [chooser] = await Promise.all([
           this.page.waitForEvent('filechooser', { timeout: 15000 }),
-          menuItem.click()
+          hiddenSelector.first().click({ force: true })
         ]);
         await chooser.setFiles(imagePath);
         return;
       } catch (err) {
         this.log(`Upload menu path failed: ${err.message || err}`);
+      }
+    }
+
+    const plusButton = this.page.getByRole('button', { name: /\+/ });
+    if (await isVisible(plusButton)) {
+      this.log('Clicking plus button for upload...');
+      await plusButton.first().click();
+      try {
+        const hiddenSelector = this.page.locator(
+          '.hidden-local-file-image-selector-button'
+        );
+        const [chooser] = await Promise.all([
+          this.page.waitForEvent('filechooser', { timeout: 15000 }),
+          hiddenSelector.first().click({ force: true })
+        ]);
+        await chooser.setFiles(imagePath);
+        return;
+      } catch (err) {
+        this.log(`Plus button upload failed: ${err.message || err}`);
       }
     }
 
