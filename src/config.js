@@ -32,7 +32,8 @@ function buildConfig(args) {
     downloadTimeoutMs: Number(args.downloadTimeoutMs || 2 * 60 * 1000),
     limit: args.limit ? Number(args.limit) : undefined,
     verbose: args.verbose !== undefined ? Boolean(args.verbose) : true,
-    forceUnlock: args.forceUnlock !== undefined ? Boolean(args.forceUnlock) : true
+    forceUnlock: args.forceUnlock !== undefined ? Boolean(args.forceUnlock) : true,
+    debug: args.debug !== undefined ? Boolean(args.debug) : true
   };
 }
 

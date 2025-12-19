@@ -37,6 +37,9 @@ class GeminiHandler {
 
   _promptCandidates() {
     return [
+      () => this.page.locator('[data-test-id="prompt-textarea"]'),
+      () => this.page.locator('[data-test-id*="prompt" i]'),
+      () => this.page.locator('[data-test-id*="input" i]'),
       () => this.page.getByPlaceholder(/describe your image/i),
       () => this.page.getByRole('textbox'),
       () => this.page.locator('textarea'),
@@ -44,10 +47,44 @@ class GeminiHandler {
     ];
   }
 
+  async captureDebug(label, outputDir) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const safeLabel = label.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const base = `debug-${safeLabel}-${timestamp}`;
+    const screenshotPath = `${outputDir}/${base}.png`;
+    const htmlPath = `${outputDir}/${base}.html`;
+    const urlPath = `${outputDir}/${base}.url.txt`;
+
+    try {
+      await this.page.screenshot({ path: screenshotPath, fullPage: true });
+    } catch (err) {
+      this.log(`Debug screenshot failed: ${err.message || err}`);
+    }
+
+    try {
+      const html = await this.page.content();
+      await fs.writeFile(htmlPath, html);
+    } catch (err) {
+      this.log(`Debug HTML dump failed: ${err.message || err}`);
+    }
+
+    try {
+      const url = this.page.url();
+      await fs.writeFile(urlPath, url);
+    } catch (err) {
+      this.log(`Debug URL dump failed: ${err.message || err}`);
+    }
+
+    this.log(`Saved debug artifacts: ${base}.*`);
+  }
+
   async ensureReadyForInput() {
     this.log('Ensuring prompt input is available...');
     const promptCandidates = this._promptCandidates();
-    if (await this._checkAnyVisible(promptCandidates)) return;
+    if (await this._checkAnyVisible(promptCandidates)) {
+      this.log('Prompt input already visible.');
+      return;
+    }
 
     const newChatCandidates = [
       () => this.page.getByRole('button', { name: /new chat/i }),

@@ -95,15 +95,23 @@ async function run() {
 
     while (attempt < config.retries && !succeeded) {
       attempt += 1;
+      let currentStep = 'init';
       try {
         log(`Processing ${baseName} (attempt ${attempt}/${config.retries})`);
+        currentStep = 'ensure-ready';
         await handler.ensureReadyForInput();
+        currentStep = 'select-fast';
         await handler.selectFastMode();
+        currentStep = 'upload';
         await handler.uploadImage(imagePath);
+        currentStep = 'prompt';
         await handler.enterPrompt(config.prompt);
+        currentStep = 'send';
         await handler.sendPrompt();
+        currentStep = 'processing';
         await handler.waitForProcessingComplete();
 
+        currentStep = 'download';
         const outputPath = await buildOutputPath(config.outputDir, imagePath);
         await handler.downloadImage(outputPath);
 
@@ -119,10 +127,17 @@ async function run() {
         await delay(delayMs);
       } catch (err) {
         const message = err && err.message ? err.message : String(err);
+        const stepMessage = `step=${currentStep} ${message}`;
         await appendLog(
           config.outputDir,
-          `ERROR ${baseName} attempt ${attempt}: ${message}`
+          `ERROR ${baseName} attempt ${attempt}: ${stepMessage}`
         );
+        if (config.debug) {
+          await handler.captureDebug(
+            `${baseName}-attempt-${attempt}-${currentStep}`,
+            config.outputDir
+          );
+        }
         if (attempt >= config.retries) {
           state.failed.push(imagePath);
           await saveState(config.outputDir, state);
