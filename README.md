@@ -12,9 +12,19 @@ This project automates the process of:
 
 ## Setup
 
-Coming soon...
+- Install dependencies: `npm install`
+- First run will open a browser window for manual login
 
 ## Usage
 
-Coming soon...
+- Run with defaults:
+  - `npm start`
+- Run a small test batch of 5 images:
+  - `npm start -- --limit 5`
+- Custom input/output:
+  - `npm start -- --input ~/Downloads/frames_DJI_0924_0926_3s/all --output ./output/upscaled_images/`
 
+## Notes
+
+- Persistent browser data lives in `browser-data/`.
+- Output, logs, and state live in `output/upscaled_images/`.

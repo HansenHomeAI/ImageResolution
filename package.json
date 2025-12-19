@@ -1,0 +1,13 @@
+{
+  "name": "gemini-image-upscaler",
+  "version": "0.1.0",
+  "description": "Playwright automation for Gemini image upscaling",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "minimist": "^1.2.8",
+    "playwright": "^1.47.2"
+  }
+}

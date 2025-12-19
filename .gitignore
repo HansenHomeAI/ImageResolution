@@ -1,45 +1,5 @@
-# Dependencies
 node_modules/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-ENV/
-.venv
-
-# Playwright
-playwright-report/
-test-results/
-playwright/.cache/
-
-# Environment variables
-.env
-.env.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+output/
+browser-data/
 .DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Downloaded images (optional - uncomment if you don't want to track processed images)
-# processed_images/
-# downloads/
-
+.env
