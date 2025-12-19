@@ -200,6 +200,19 @@ class GeminiHandler {
       return;
     }
 
+    const shadowInputHandle = await this.page.evaluateHandle(() => {
+      const uploader = document.querySelector('uploader');
+      if (!uploader || !uploader.shadowRoot) return null;
+      return uploader.shadowRoot.querySelector('input[type="file"]');
+    });
+    const shadowInput = shadowInputHandle.asElement();
+    if (shadowInput) {
+      await shadowInput.setInputFiles(imagePath);
+      await shadowInputHandle.dispose();
+      return;
+    }
+    await shadowInputHandle.dispose();
+
     const hiddenImageButton = this.page.locator(
       '[data-test-id="hidden-local-image-upload-button"]'
     );
