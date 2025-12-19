@@ -37,13 +37,11 @@ class GeminiHandler {
 
   _promptCandidates() {
     return [
-      () => this.page.locator('[data-test-id="prompt-textarea"]'),
-      () => this.page.locator('[data-test-id*="prompt" i]'),
-      () => this.page.locator('[data-test-id*="input" i]'),
-      () => this.page.getByPlaceholder(/describe your image/i),
-      () => this.page.getByRole('textbox'),
+      () => this.page.locator('div[contenteditable="true"][role="textbox"]'),
+      () => this.page.locator('div[contenteditable="true"][aria-label*="prompt" i]'),
       () => this.page.locator('textarea'),
-      () => this.page.locator('[contenteditable="true"]')
+      () => this.page.getByPlaceholder(/describe your image/i),
+      () => this.page.getByRole('textbox')
     ];
   }
 
