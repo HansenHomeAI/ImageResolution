@@ -104,31 +104,42 @@ class GeminiHandler {
   }
 
   async ensureLoggedIn() {
-    const signedOutIndicators = [
-      () => this.page.locator('[data-test-id="signed-out-disclaimer"]'),
-      () => this.page.getByText(/sign in/i),
-      () => this.page.locator('.signed-out-greeting')
-    ];
-
-    const loginIndicators = [
-      () => this.page.locator('[data-test-id="bard-mode-menu-button"]'),
-      () => this.page.getByRole('button', { name: /new chat/i }),
-      () => this.page.getByText('PRO', { exact: false })
+    const signInIndicators = [
+      () => this.page.getByRole('link', { name: /sign in/i }),
+      () => this.page.getByRole('button', { name: /sign in/i }),
+      () => this.page.locator('a[href*="signin"]')
     ];
 
     this.log('Checking login state...');
-    if (await this._checkAnyVisible(signedOutIndicators)) {
-      this.log('Signed out. Please log in to Gemini in the opened browser.');
-      for (const indicator of signedOutIndicators) {
-        try {
-          await indicator().first().waitFor({ state: 'hidden', timeout: 15 * 60 * 1000 });
-        } catch (err) {
-          // Ignore and check other indicators.
-        }
-      }
+    if (await this._checkAnyVisible(signInIndicators)) {
+      this.log('Sign-in prompt detected. Please log in to Gemini in the opened browser.');
+      await waitForAnyVisible(
+        this.page,
+        [() => this.page.locator('[data-test-id="bard-mode-menu-button"]')],
+        15 * 60 * 1000
+      );
     }
 
-    await waitForAnyVisible(this.page, loginIndicators, 15 * 60 * 1000);
+    const sendButton = this.page.getByRole('button', { name: /send message/i });
+    try {
+      const ariaDisabled = await sendButton.first().getAttribute('aria-disabled');
+      if (ariaDisabled && ariaDisabled !== 'false') {
+        this.log('Send button disabled; waiting for login to complete.');
+        await waitForAnyVisible(
+          this.page,
+          [() => this.page.locator('[data-test-id="bard-mode-menu-button"]')],
+          15 * 60 * 1000
+        );
+      }
+    } catch (err) {
+      // If send button check fails, continue with mode/menu indicators.
+    }
+
+    await waitForAnyVisible(
+      this.page,
+      [() => this.page.locator('[data-test-id="bard-mode-menu-button"]')],
+      15 * 60 * 1000
+    );
     this.log('Login detected.');
   }
 
@@ -189,11 +200,28 @@ class GeminiHandler {
       return;
     }
 
+    const hiddenImageButton = this.page.locator(
+      '[data-test-id="hidden-local-image-upload-button"]'
+    );
+    if (await hiddenImageButton.count()) {
+      try {
+        const [chooser] = await Promise.all([
+          this.page.waitForEvent('filechooser', { timeout: 15000 }),
+          hiddenImageButton.first().click({ force: true })
+        ]);
+        await chooser.setFiles(imagePath);
+        return;
+      } catch (err) {
+        this.log(`Hidden upload button click failed: ${err.message || err}`);
+      }
+    }
+
     const uploadButtonCandidates = [
       () => this.page.locator('[data-test-id*="upload" i]'),
       () => this.page.getByRole('button', { name: /upload/i }),
       () => this.page.getByRole('button', { name: /add file/i }),
-      () => this.page.getByRole('button', { name: /\+/ })
+      () => this.page.getByRole('button', { name: /\+/ }),
+      () => this.page.getByRole('button', { name: /open upload file menu/i })
     ];
 
     const button = await waitForAnyVisible(
@@ -204,11 +232,24 @@ class GeminiHandler {
 
     try {
       await button.click();
-      await input.first().setInputFiles(imagePath);
+      const menuItemCandidates = [
+        () => this.page.getByRole('menuitem', { name: /upload image/i }),
+        () => this.page.getByRole('menuitem', { name: /upload/i })
+      ];
+      const menuItem = await waitForAnyVisible(
+        this.page,
+        menuItemCandidates,
+        5000
+      );
+      const [chooser] = await Promise.all([
+        this.page.waitForEvent('filechooser', { timeout: 15000 }),
+        menuItem.click()
+      ]);
+      await chooser.setFiles(imagePath);
     } catch (err) {
       const [chooser] = await Promise.all([
-        this.page.waitForEvent('filechooser', { timeout: 5000 }),
-        button.click()
+        this.page.waitForEvent('filechooser', { timeout: 15000 }),
+        button.click({ force: true })
       ]);
       await chooser.setFiles(imagePath);
     }
