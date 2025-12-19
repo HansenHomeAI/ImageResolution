@@ -159,13 +159,13 @@ class GeminiHandler {
       // Continue to download check; Gemini may skip the loading indicator.
     }
 
-    await this._waitForDownloadButton();
+    await this._waitForDownloadButtonWithHeartbeat();
     this.log('Processing complete; download button visible.');
   }
 
   async downloadImage(outputPath) {
     this.log(`Downloading to: ${outputPath}`);
-    const downloadButton = await this._waitForDownloadButton();
+    const downloadButton = await this._waitForDownloadButtonWithHeartbeat();
     const [download] = await Promise.all([
       this.page.waitForEvent('download', {
         timeout: this.config.downloadTimeoutMs
@@ -193,6 +193,37 @@ class GeminiHandler {
       downloadCandidates,
       this.config.processingTimeoutMs
     );
+  }
+
+  async _waitForDownloadButtonWithHeartbeat() {
+    const downloadCandidates = [
+      () => this.page.getByRole('button', { name: /download full size/i }),
+      () => this.page.getByRole('button', { name: /download/i }),
+      () => this.page.locator('[aria-label*="download" i]')
+    ];
+
+    const start = Date.now();
+    let lastLog = start;
+
+    while (Date.now() - start < this.config.processingTimeoutMs) {
+      for (const candidate of downloadCandidates) {
+        const locator = candidate();
+        if (await isVisible(locator)) {
+          return locator;
+        }
+      }
+
+      const now = Date.now();
+      if (now - lastLog >= 10000) {
+        const elapsed = Math.floor((now - start) / 1000);
+        this.log(`Still waiting for download button... ${elapsed}s elapsed`);
+        lastLog = now;
+      }
+
+      await delay(DEFAULT_POLL_MS);
+    }
+
+    throw new Error('Timeout waiting for download button.');
   }
 
   async _checkAnyVisible(locatorFactories) {

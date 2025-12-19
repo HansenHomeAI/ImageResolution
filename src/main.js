@@ -1,6 +1,8 @@
 const path = require('path');
 const minimist = require('minimist');
 const { chromium } = require('playwright');
+const fs = require('fs/promises');
+const { execSync } = require('child_process');
 
 const { buildConfig } = require('./config');
 const {
@@ -18,6 +20,34 @@ function getRandomDelay(minMs, maxMs) {
   return Math.floor(minMs + Math.random() * (maxMs - minMs));
 }
 
+async function cleanupProfileLocks(config, log) {
+  const entries = await fs.readdir(config.browserDataDir).catch(() => []);
+  const lockFiles = entries.filter((name) => name.startsWith('Singleton'));
+  if (!lockFiles.length || !config.forceUnlock) return;
+
+  let hasChromeTesting = false;
+  if (process.platform === 'darwin') {
+    try {
+      const psOutput = execSync('ps -ax').toString();
+      hasChromeTesting = psOutput.includes('Google Chrome for Testing');
+    } catch (err) {
+      // If ps fails, skip cleanup to be safe.
+      hasChromeTesting = true;
+    }
+  }
+
+  if (hasChromeTesting) {
+    throw new Error(
+      'Chrome for Testing appears to be running; close it before retrying.'
+    );
+  }
+
+  for (const name of lockFiles) {
+    await fs.rm(path.join(config.browserDataDir, name), { force: true });
+  }
+  log('Removed stale profile lock files.');
+}
+
 async function run() {
   const args = minimist(process.argv.slice(2));
   const config = buildConfig(args);
@@ -27,6 +57,7 @@ async function run() {
   log('Starting Gemini upscaler...');
   await ensureDir(config.outputDir);
   await ensureDir(config.browserDataDir);
+  await cleanupProfileLocks(config, log);
 
   const state = await loadState(config.outputDir);
   const allImages = await listImages(config.inputDir);

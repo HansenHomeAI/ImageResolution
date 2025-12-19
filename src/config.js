@@ -31,7 +31,8 @@ function buildConfig(args) {
     processingTimeoutMs: Number(args.processingTimeoutMs || 5 * 60 * 1000),
     downloadTimeoutMs: Number(args.downloadTimeoutMs || 2 * 60 * 1000),
     limit: args.limit ? Number(args.limit) : undefined,
-    verbose: args.verbose !== undefined ? Boolean(args.verbose) : true
+    verbose: args.verbose !== undefined ? Boolean(args.verbose) : true,
+    forceUnlock: args.forceUnlock !== undefined ? Boolean(args.forceUnlock) : true
   };
 }
 
