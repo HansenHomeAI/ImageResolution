@@ -32,6 +32,7 @@ class GeminiHandler {
   constructor(page, config) {
     this.page = page;
     this.config = config;
+    this.log = config.log || (() => {});
   }
 
   async ensureLoggedIn() {
@@ -41,14 +42,17 @@ class GeminiHandler {
       () => this.page.getByRole('button', { name: /new chat/i })
     ];
 
+    this.log('Checking login state...');
     const isLoggedIn = await this._checkAnyVisible(loginIndicators);
     if (isLoggedIn) return;
 
-    console.log('Login required. Please log in to Gemini in the opened browser.');
+    this.log('Login required. Please log in to Gemini in the opened browser.');
     await waitForAnyVisible(this.page, loginIndicators, 15 * 60 * 1000);
+    this.log('Login detected.');
   }
 
   async selectFastMode() {
+    this.log('Selecting Fast mode...');
     const modeButtonCandidates = [
       () => this.page.getByRole('button', { name: /fast/i }),
       () => this.page.getByRole('button', { name: /mode/i }),
@@ -84,9 +88,11 @@ class GeminiHandler {
         throw err;
       }
     }
+    this.log('Fast mode selected.');
   }
 
   async uploadImage(imagePath) {
+    this.log(`Uploading image: ${imagePath}`);
     const input = this.page.locator('input[type="file"]');
     if (await input.count()) {
       await input.first().setInputFiles(imagePath);
@@ -109,6 +115,7 @@ class GeminiHandler {
   }
 
   async enterPrompt(prompt) {
+    this.log('Entering prompt...');
     const promptCandidates = [
       () => this.page.getByPlaceholder(/describe your image/i),
       () => this.page.getByRole('textbox'),
@@ -124,6 +131,7 @@ class GeminiHandler {
   }
 
   async sendPrompt() {
+    this.log('Sending prompt...');
     const sendCandidates = [
       () => this.page.getByRole('button', { name: /send/i }),
       () => this.page.locator('[aria-label*="send" i]')
@@ -142,6 +150,7 @@ class GeminiHandler {
   }
 
   async waitForProcessingComplete() {
+    this.log('Waiting for processing to complete...');
     const loading = this.page.getByText(/loading nano banana/i);
     try {
       await loading.waitFor({ state: 'visible', timeout: 20000 });
@@ -151,9 +160,11 @@ class GeminiHandler {
     }
 
     await this._waitForDownloadButton();
+    this.log('Processing complete; download button visible.');
   }
 
   async downloadImage(outputPath) {
+    this.log(`Downloading to: ${outputPath}`);
     const downloadButton = await this._waitForDownloadButton();
     const [download] = await Promise.all([
       this.page.waitForEvent('download', {

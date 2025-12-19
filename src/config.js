@@ -30,7 +30,8 @@ function buildConfig(args) {
     retries: Number(args.retries || 3),
     processingTimeoutMs: Number(args.processingTimeoutMs || 5 * 60 * 1000),
     downloadTimeoutMs: Number(args.downloadTimeoutMs || 2 * 60 * 1000),
-    limit: args.limit ? Number(args.limit) : undefined
+    limit: args.limit ? Number(args.limit) : undefined,
+    verbose: args.verbose !== undefined ? Boolean(args.verbose) : true
   };
 }
 

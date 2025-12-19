@@ -21,7 +21,10 @@ function getRandomDelay(minMs, maxMs) {
 async function run() {
   const args = minimist(process.argv.slice(2));
   const config = buildConfig(args);
+  const log = config.verbose ? console.log : () => {};
+  config.log = log;
 
+  log('Starting Gemini upscaler...');
   await ensureDir(config.outputDir);
   await ensureDir(config.browserDataDir);
 
@@ -35,6 +38,7 @@ async function run() {
     return;
   }
 
+  log(`Launching browser with profile at ${config.browserDataDir}`);
   const context = await chromium.launchPersistentContext(
     config.browserDataDir,
     {
@@ -46,6 +50,7 @@ async function run() {
   const page = await context.newPage();
   const handler = new GeminiHandler(page, config);
 
+  log('Navigating to Gemini...');
   await page.goto('https://gemini.google.com/app', { waitUntil: 'domcontentloaded' });
   await handler.ensureLoggedIn();
 
@@ -60,7 +65,7 @@ async function run() {
     while (attempt < config.retries && !succeeded) {
       attempt += 1;
       try {
-        console.log(`Processing ${baseName} (attempt ${attempt}/${config.retries})`);
+        log(`Processing ${baseName} (attempt ${attempt}/${config.retries})`);
         await handler.selectFastMode();
         await handler.uploadImage(imagePath);
         await handler.enterPrompt(config.prompt);
@@ -78,6 +83,7 @@ async function run() {
         succeeded = true;
 
         const delayMs = getRandomDelay(config.minDelayMs, config.maxDelayMs);
+        log(`Waiting ${delayMs}ms before next image...`);
         await delay(delayMs);
       } catch (err) {
         const message = err && err.message ? err.message : String(err);
