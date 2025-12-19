@@ -20,7 +20,7 @@ async function waitForAnyVisible(page, locatorFactories, timeoutMs) {
     for (const factory of locatorFactories) {
       const locator = factory();
       if (await isVisible(locator)) {
-        return locator;
+        return locator.first();
       }
     }
     await delay(DEFAULT_POLL_MS);
@@ -33,6 +33,37 @@ class GeminiHandler {
     this.page = page;
     this.config = config;
     this.log = config.log || (() => {});
+  }
+
+  _promptCandidates() {
+    return [
+      () => this.page.getByPlaceholder(/describe your image/i),
+      () => this.page.getByRole('textbox'),
+      () => this.page.locator('textarea'),
+      () => this.page.locator('[contenteditable="true"]')
+    ];
+  }
+
+  async ensureReadyForInput() {
+    this.log('Ensuring prompt input is available...');
+    const promptCandidates = this._promptCandidates();
+    if (await this._checkAnyVisible(promptCandidates)) return;
+
+    const newChatCandidates = [
+      () => this.page.getByRole('button', { name: /new chat/i }),
+      () => this.page.locator('[aria-label*="new chat" i]')
+    ];
+
+    for (const candidate of newChatCandidates) {
+      const locator = candidate();
+      if (await isVisible(locator)) {
+        await locator.first().click();
+        break;
+      }
+    }
+
+    await waitForAnyVisible(this.page, promptCandidates, 10000);
+    this.log('Prompt input ready.');
   }
 
   async ensureLoggedIn() {
@@ -56,7 +87,8 @@ class GeminiHandler {
     const modeButtonCandidates = [
       () => this.page.getByRole('button', { name: /fast/i }),
       () => this.page.getByRole('button', { name: /mode/i }),
-      () => this.page.locator('[aria-label*="mode" i]')
+      () => this.page.locator('[aria-label*="mode" i]'),
+      () => this.page.locator('[data-test-id="bard-mode-menu-button"]')
     ];
 
     const fastOptionCandidates = [
@@ -68,7 +100,7 @@ class GeminiHandler {
     for (const candidate of modeButtonCandidates) {
       const locator = candidate();
       if (await isVisible(locator)) {
-        await locator.click();
+        await locator.first().click();
         break;
       }
     }
@@ -100,6 +132,7 @@ class GeminiHandler {
     }
 
     const uploadButtonCandidates = [
+      () => this.page.locator('[data-test-id*="upload" i]'),
       () => this.page.getByRole('button', { name: /upload/i }),
       () => this.page.getByRole('button', { name: /add file/i }),
       () => this.page.getByRole('button', { name: /\+/ })
@@ -110,17 +143,22 @@ class GeminiHandler {
       uploadButtonCandidates,
       5000
     );
-    await button.click();
-    await input.first().setInputFiles(imagePath);
+
+    try {
+      await button.click();
+      await input.first().setInputFiles(imagePath);
+    } catch (err) {
+      const [chooser] = await Promise.all([
+        this.page.waitForEvent('filechooser', { timeout: 5000 }),
+        button.click()
+      ]);
+      await chooser.setFiles(imagePath);
+    }
   }
 
   async enterPrompt(prompt) {
     this.log('Entering prompt...');
-    const promptCandidates = [
-      () => this.page.getByPlaceholder(/describe your image/i),
-      () => this.page.getByRole('textbox'),
-      () => this.page.locator('textarea')
-    ];
+    const promptCandidates = this._promptCandidates();
 
     const promptBox = await waitForAnyVisible(
       this.page,
@@ -133,6 +171,7 @@ class GeminiHandler {
   async sendPrompt() {
     this.log('Sending prompt...');
     const sendCandidates = [
+      () => this.page.locator('[data-test-id*="send" i]'),
       () => this.page.getByRole('button', { name: /send/i }),
       () => this.page.locator('[aria-label*="send" i]')
     ];

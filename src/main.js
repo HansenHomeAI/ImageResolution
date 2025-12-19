@@ -97,6 +97,7 @@ async function run() {
       attempt += 1;
       try {
         log(`Processing ${baseName} (attempt ${attempt}/${config.retries})`);
+        await handler.ensureReadyForInput();
         await handler.selectFastMode();
         await handler.uploadImage(imagePath);
         await handler.enterPrompt(config.prompt);
