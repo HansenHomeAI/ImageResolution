@@ -115,6 +115,7 @@ async function run() {
       let currentStep = 'init';
       try {
         log(`Processing ${baseName} (attempt ${attempt}/${config.retries})`);
+        const previousDownloadCount = await handler.getDownloadButtonCount();
         currentStep = 'ensure-ready';
         await handler.ensureReadyForInput();
         currentStep = 'select-fast';
@@ -126,11 +127,14 @@ async function run() {
         currentStep = 'send';
         await handler.sendPrompt();
         currentStep = 'processing';
-        await handler.waitForProcessingComplete();
+        await handler.waitForProcessingComplete(previousDownloadCount);
 
         currentStep = 'download';
         const outputPath = await buildOutputPath(config.outputDir, imagePath);
-        await handler.downloadImage(outputPath);
+        const downloadButton = await handler.waitForNewDownloadButton(
+          previousDownloadCount
+        );
+        await handler.downloadImage(outputPath, downloadButton);
 
         state.processed.push(imagePath);
         await saveState(config.outputDir, state);

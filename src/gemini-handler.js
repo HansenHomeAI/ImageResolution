@@ -345,7 +345,39 @@ class GeminiHandler {
     }
   }
 
-  async waitForProcessingComplete() {
+  async getDownloadButtonCount() {
+    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
+    return locator.count();
+  }
+
+  async waitForNewDownloadButton(previousCount) {
+    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
+    const start = Date.now();
+    let lastLog = start;
+
+    while (Date.now() - start < this.config.processingTimeoutMs) {
+      const count = await locator.count();
+      if (count > previousCount) {
+        const last = locator.nth(count - 1);
+        if (await isVisible(last)) {
+          return last;
+        }
+      }
+
+      const now = Date.now();
+      if (now - lastLog >= 10000) {
+        const elapsed = Math.floor((now - start) / 1000);
+        this.log(`Still waiting for new download button... ${elapsed}s elapsed`);
+        lastLog = now;
+      }
+
+      await delay(DEFAULT_POLL_MS);
+    }
+
+    throw new Error('Timeout waiting for new download button.');
+  }
+
+  async waitForProcessingComplete(previousDownloadCount) {
     this.log('Waiting for processing to complete...');
     const loading = this.page.getByText(/loading nano banana/i);
     try {
@@ -355,13 +387,12 @@ class GeminiHandler {
       // Continue to download check; Gemini may skip the loading indicator.
     }
 
-    await this._waitForDownloadButtonWithHeartbeat();
+    await this.waitForNewDownloadButton(previousDownloadCount);
     this.log('Processing complete; download button visible.');
   }
 
-  async downloadImage(outputPath) {
+  async downloadImage(outputPath, downloadButton) {
     this.log(`Downloading to: ${outputPath}`);
-    const downloadButton = await this._waitForDownloadButtonWithHeartbeat();
     const [download] = await Promise.all([
       this.page.waitForEvent('download', {
         timeout: this.config.downloadTimeoutMs
@@ -378,49 +409,11 @@ class GeminiHandler {
   }
 
   async _waitForDownloadButton() {
-    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
-    const start = Date.now();
-
-    while (Date.now() - start < this.config.processingTimeoutMs) {
-      const count = await locator.count();
-      if (count > 0) {
-        const last = locator.last();
-        if (await isVisible(last)) {
-          return last;
-        }
-      }
-      await delay(DEFAULT_POLL_MS);
-    }
-
-    throw new Error('Timeout waiting for download button.');
+    return this.waitForNewDownloadButton(0);
   }
 
   async _waitForDownloadButtonWithHeartbeat() {
-    const locator = this.page.locator('[data-test-id="download-generated-image-button"]');
-
-    const start = Date.now();
-    let lastLog = start;
-
-    while (Date.now() - start < this.config.processingTimeoutMs) {
-      const count = await locator.count();
-      if (count > 0) {
-        const last = locator.last();
-        if (await isVisible(last)) {
-          return last;
-        }
-      }
-
-      const now = Date.now();
-      if (now - lastLog >= 10000) {
-        const elapsed = Math.floor((now - start) / 1000);
-        this.log(`Still waiting for download button... ${elapsed}s elapsed`);
-        lastLog = now;
-      }
-
-      await delay(DEFAULT_POLL_MS);
-    }
-
-    throw new Error('Timeout waiting for download button.');
+    return this.waitForNewDownloadButton(0);
   }
 
   async _checkAnyVisible(locatorFactories) {
