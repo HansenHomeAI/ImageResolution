@@ -144,10 +144,8 @@ class GeminiHandler {
   async selectFastMode() {
     this.log('Selecting Fast mode...');
     const modeButtonCandidates = [
-      () => this.page.getByRole('button', { name: /fast/i }),
-      () => this.page.getByRole('button', { name: /mode/i }),
-      () => this.page.locator('[aria-label*="mode" i]'),
-      () => this.page.locator('[data-test-id="bard-mode-menu-button"]')
+      () => this.page.locator('[data-test-id="bard-mode-menu-button"]'),
+      () => this.page.getByRole('button', { name: /fast/i })
     ];
 
     const fastOptionCandidates = [
@@ -170,7 +168,12 @@ class GeminiHandler {
       return;
     }
 
-    await modeButton.click();
+    try {
+      await modeButton.click({ force: true });
+    } catch (err) {
+      this.log(`Mode selector click failed: ${err.message || err}`);
+      return;
+    }
 
     try {
       const option = await waitForAnyVisible(
