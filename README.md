@@ -28,3 +28,4 @@ This project automates the process of:
 
 - Persistent browser data lives in `browser-data/`.
 - Output, logs, and state live in `output/upscaled_images/`.
+
