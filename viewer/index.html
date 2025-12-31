@@ -43,64 +43,173 @@
             padding: 10px;
         }
 
-        /* Render control panel (bottom-right) */
+        /* Render control panel (bottom-right) - Minimalist Notion-style Liquid Glass */
         #splatControlPanel {
             position: absolute;
             right: 20px;
             bottom: 20px;
-            width: 260px;
-            background: rgba(128, 128, 128, 0.30);
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
-            border-radius: 16px;
-            padding: 12px 14px;
-            color: #ffffff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            width: 320px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 16px 18px;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             z-index: 10;
             box-sizing: border-box;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
         #splatControlPanel h3 {
-            margin: 0 0 10px 0;
-            font-size: 15px;
+            margin: 0 0 16px 0;
+            font-size: 14px;
             font-weight: 600;
+            letter-spacing: -0.2px;
+            color: rgba(255, 255, 255, 0.98);
+            text-transform: uppercase;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        .splat-section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .splat-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .splat-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: -0.1px;
+        }
+        .control-group {
+            margin-bottom: 10px;
+        }
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        .control-group label {
+            display: block;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-bottom: 6px;
+            font-weight: 500;
+            letter-spacing: 0.1px;
         }
         .control-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin: 6px 0;
-            gap: 6px;
-            font-size: 13px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
-        .control-row label {
-            flex: 1 1 auto;
+        .control-row:last-child {
+            margin-bottom: 0;
         }
         .control-row input[type="range"] {
-            flex: 1 1 120px;
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .control-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .control-row input[type="range"]::-webkit-slider-thumb:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.15);
+        }
+        .control-row input[type="range"]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .control-row input[type="number"] {
+            width: 70px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 6px 8px;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .control-row input[type="number"]:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
         }
         .control-row select {
-            flex: 1 1 auto;
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 6px;
-            padding: 4px 6px;
+            padding: 6px 8px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .control-row select:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .control-row select:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
         }
         .control-row .value {
-            width: 48px;
+            width: 50px;
             text-align: right;
             font-variant-numeric: tabular-nums;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
         }
         .radio-row {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            font-size: 13px;
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+        .radio-row > span {
+            color: rgba(255, 255, 255, 0.65);
+            font-weight: 500;
         }
         .radio-row label {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.85);
+            transition: color 0.2s ease;
+        }
+        .radio-row label:hover {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        .radio-row input[type="radio"] {
+            cursor: pointer;
+            accent-color: rgba(255, 255, 255, 0.9);
         }
         
         /* Compass Button - Commented out for later use */
@@ -622,34 +731,126 @@
     <!-- Render control panel (bottom-right) -->
     <div id="splatControlPanel">
         <h3>Render Controls</h3>
-        <div class="control-row">
-            <label for="splat1Radius">Splat 1 radius</label>
-            <input type="range" id="splat1Radius" min="0.05" max="5" step="0.01">
-            <span class="value" id="splat1RadiusValue"></span>
+        
+        <!-- Splat 1 Section -->
+        <div class="splat-section">
+            <div class="splat-section-title">Splat 1</div>
+            
+            <div class="control-group">
+                <label>Radius</label>
+                <div class="control-row">
+                    <input type="range" id="splat1Radius" min="0.05" max="50" step="0.1">
+                    <input type="number" id="splat1RadiusNum" min="0.05" max="50" step="0.1">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Mode</label>
+                <div class="control-row">
+                    <select id="splat1Mode">
+                        <option value="inside">Inside</option>
+                        <option value="outside">Outside</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Position</label>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">X</label>
+                    <input type="number" id="splat1PosX" step="0.01">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Y</label>
+                    <input type="number" id="splat1PosY" step="0.01">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Z</label>
+                    <input type="number" id="splat1PosZ" step="0.01">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Rotation (degrees)</label>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">X</label>
+                    <input type="number" id="splat1RotX" step="0.1">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Y</label>
+                    <input type="number" id="splat1RotY" step="0.1">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Z</label>
+                    <input type="number" id="splat1RotZ" step="0.1">
+                </div>
+            </div>
         </div>
-        <div class="control-row">
-            <label for="splat1Mode">Splat 1 mode</label>
-            <select id="splat1Mode">
-                <option value="inside">Inside</option>
-                <option value="outside">Outside</option>
-            </select>
+        
+        <!-- Splat 2 Section -->
+        <div class="splat-section">
+            <div class="splat-section-title">Splat 2</div>
+            
+            <div class="control-group">
+                <label>Radius</label>
+                <div class="control-row">
+                    <input type="range" id="splat2Radius" min="0.05" max="50" step="0.1">
+                    <input type="number" id="splat2RadiusNum" min="0.05" max="50" step="0.1">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Mode</label>
+                <div class="control-row">
+                    <select id="splat2Mode">
+                        <option value="inside">Inside</option>
+                        <option value="outside">Outside</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Position</label>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">X</label>
+                    <input type="number" id="splat2PosX" step="0.01">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Y</label>
+                    <input type="number" id="splat2PosY" step="0.01">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Z</label>
+                    <input type="number" id="splat2PosZ" step="0.01">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Rotation (degrees)</label>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">X</label>
+                    <input type="number" id="splat2RotX" step="0.1">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Y</label>
+                    <input type="number" id="splat2RotY" step="0.1">
+                </div>
+                <div class="control-row">
+                    <label style="width: 20px; margin: 0;">Z</label>
+                    <input type="number" id="splat2RotZ" step="0.1">
+                </div>
+            </div>
         </div>
-        <div class="control-row">
-            <label for="splat2Radius">Splat 2 radius</label>
-            <input type="range" id="splat2Radius" min="0.05" max="5" step="0.01">
-            <span class="value" id="splat2RadiusValue"></span>
-        </div>
-        <div class="control-row">
-            <label for="splat2Mode">Splat 2 mode</label>
-            <select id="splat2Mode">
-                <option value="inside">Inside</option>
-                <option value="outside">Outside</option>
-            </select>
-        </div>
-        <div class="radio-row">
-            <span>Background priority:</span>
-            <label><input type="radio" name="bgOwner" value="splat1" checked> Splat 1</label>
-            <label><input type="radio" name="bgOwner" value="splat2"> Splat 2</label>
+        
+        <!-- Background Priority -->
+        <div class="splat-section">
+            <div class="control-group">
+                <label>Background Priority</label>
+                <div class="radio-row">
+                    <label><input type="radio" name="bgOwner" value="splat1" checked> Splat 1</label>
+                    <label><input type="radio" name="bgOwner" value="splat2"> Splat 2</label>
+                </div>
+            </div>
         </div>
     </div>
     <script type="importmap">
@@ -939,18 +1140,18 @@
     // Splat configurations
     const splatConfigs = {
         splat1: {
-            source: '',
+            source: 'https://lumalabs.ai/embed/3b41e172-dd0f-48a4-9065-893862bfc8b1?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
             position: new Vector3(0.063, 0, -0.165),
             rotation: { x: 0, y: 0, z: 0 },
             scale: 1,
-            culling: { ...defaultCulling }
+            culling: { radius: 15, mode: 'inside' } // Foreground: inside 15 radius
         },
         splat2: {
-            source: 'https://lumalabs.ai/embed/35da8a57-b2d8-4cd2-958e-1f449bf8ecf2?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
+            source: 'https://lumalabs.ai/embed/04a8b1ce-135f-4537-aeeb-e4eed6f81815?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
             position: new Vector3(0, -0.72, 0),
             rotation: { x: 0, y: 0, z: 0 },
             scale: 1,
-            culling: { ...defaultCulling }
+            culling: { radius: 15, mode: 'outside' } // Horizon/background: outside 15 radius
         }
     };
 
@@ -1000,10 +1201,10 @@
             target.material.uniforms.cullRadius.value = radius;
             target.material.needsUpdate = true;
         }
-        const input = document.getElementById(`${id}Radius`);
-        const valEl = document.getElementById(`${id}RadiusValue`);
-        if (input) input.value = radius;
-        if (valEl) valEl.textContent = radius.toFixed(2);
+        const slider = document.getElementById(`${id}Radius`);
+        const numInput = document.getElementById(`${id}RadiusNum`);
+        if (slider) slider.value = radius;
+        if (numInput) numInput.value = radius.toFixed(1);
     }
 
     function updateSplatMode(id, mode) {
@@ -1016,6 +1217,34 @@
         }
         const select = document.getElementById(`${id}Mode`);
         if (select) select.value = mode;
+    }
+
+    function updateSplatPosition(id, axis, value) {
+        const cfg = splatConfigs[id];
+        const target = splats[id];
+        const numValue = parseFloat(value);
+        if (cfg && cfg.position) {
+            cfg.position[axis] = numValue;
+        }
+        if (target) {
+            target.position[axis] = numValue;
+        }
+        const input = document.getElementById(`${id}Pos${axis.toUpperCase()}`);
+        if (input) input.value = numValue.toFixed(2);
+    }
+
+    function updateSplatRotation(id, axis, value) {
+        const cfg = splatConfigs[id];
+        const target = splats[id];
+        const degValue = parseFloat(value);
+        if (cfg && cfg.rotation) {
+            cfg.rotation[axis] = degValue;
+        }
+        if (target) {
+            target.rotation[axis] = MathUtils.degToRad(degValue);
+        }
+        const input = document.getElementById(`${id}Rot${axis.toUpperCase()}`);
+        if (input) input.value = degValue.toFixed(1);
     }
 
     // Background precedence between splats
@@ -1031,32 +1260,99 @@
 
     // Wire UI controls
     const panelBindings = [
-        { id: 'splat1', radiusEl: 'splat1Radius', modeEl: 'splat1Mode', radiusValEl: 'splat1RadiusValue' },
-        { id: 'splat2', radiusEl: 'splat2Radius', modeEl: 'splat2Mode', radiusValEl: 'splat2RadiusValue' }
+        { id: 'splat1', radiusEl: 'splat1Radius', radiusNumEl: 'splat1RadiusNum', modeEl: 'splat1Mode' },
+        { id: 'splat2', radiusEl: 'splat2Radius', radiusNumEl: 'splat2RadiusNum', modeEl: 'splat2Mode' }
     ];
 
+    // Initialize all controls with current config values
     panelBindings.forEach(({ id }) => {
         const cfg = splatConfigs[id];
         if (cfg) {
+            // Initialize radius
             updateSplatRadius(id, cfg.culling.radius);
+            // Initialize mode
             updateSplatMode(id, cfg.culling.mode);
+            // Initialize position
+            ['x', 'y', 'z'].forEach(axis => {
+                const input = document.getElementById(`${id}Pos${axis.toUpperCase()}`);
+                if (input && cfg.position) {
+                    input.value = cfg.position[axis];
+                }
+            });
+            // Initialize rotation
+            ['x', 'y', 'z'].forEach(axis => {
+                const input = document.getElementById(`${id}Rot${axis.toUpperCase()}`);
+                if (input && cfg.rotation) {
+                    input.value = cfg.rotation[axis];
+                }
+            });
         }
     });
 
-    panelBindings.forEach(({ id, radiusEl, modeEl }) => {
-        const radiusInput = document.getElementById(radiusEl);
-        const modeSelect = document.getElementById(modeEl);
-        if (radiusInput) {
-            radiusInput.addEventListener('input', (e) => {
+    // Wire radius controls (slider + number input)
+    panelBindings.forEach(({ id, radiusEl, radiusNumEl }) => {
+        const radiusSlider = document.getElementById(radiusEl);
+        const radiusNum = document.getElementById(radiusNumEl);
+        
+        if (radiusSlider) {
+            radiusSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
-                if (!isNaN(val)) updateSplatRadius(id, val);
+                if (!isNaN(val)) {
+                    updateSplatRadius(id, val);
+                    if (radiusNum) radiusNum.value = val.toFixed(1);
+                }
             });
         }
+        
+        if (radiusNum) {
+            radiusNum.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                    updateSplatRadius(id, val);
+                    if (radiusSlider) radiusSlider.value = val;
+                }
+            });
+        }
+    });
+
+    // Wire mode controls
+    panelBindings.forEach(({ id, modeEl }) => {
+        const modeSelect = document.getElementById(modeEl);
         if (modeSelect) {
             modeSelect.addEventListener('change', (e) => {
                 updateSplatMode(id, e.target.value);
             });
         }
+    });
+
+    // Wire position controls
+    panelBindings.forEach(({ id }) => {
+        ['x', 'y', 'z'].forEach(axis => {
+            const input = document.getElementById(`${id}Pos${axis.toUpperCase()}`);
+            if (input) {
+                input.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) {
+                        updateSplatPosition(id, axis, val);
+                    }
+                });
+            }
+        });
+    });
+
+    // Wire rotation controls
+    panelBindings.forEach(({ id }) => {
+        ['x', 'y', 'z'].forEach(axis => {
+            const input = document.getElementById(`${id}Rot${axis.toUpperCase()}`);
+            if (input) {
+                input.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) {
+                        updateSplatRotation(id, axis, val);
+                    }
+                });
+            }
+        });
     });
 
     const bgRadios = document.querySelectorAll('input[name="bgOwner"]');
