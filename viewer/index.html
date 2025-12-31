@@ -1053,7 +1053,8 @@
             camera.position.copy(direction.multiplyScalar(parameters.minDistance.radius).add(minDistCenter));
         }
 
-        // Zone-based splat toggling
+        /* 
+        // Zone-based splat toggling disabled to allow simultaneous foreground/background rendering
         if (!developerMode) {
             let cameraInZone = false;
 
@@ -1077,15 +1078,12 @@
                             }, 15);
                         }
                     }
-                    break; // Assuming only one zone is active at a time
+                    break; 
                 }
             }
 
             if (!cameraInZone) {
-                // Set default splat visibility when not in any zone
-                // "new" is splat1 here, so it goes on right away
                 splats.splat1.visible = true;
-                // "old" is splat2 here, so it goes off after 30ms
                 if (splats.splat2.visible) {
                     setTimeout(() => {
                         splats.splat2.visible = false;
@@ -1093,6 +1091,7 @@
                 }
             }
         }
+        */
     });
 
     // Developer mode toggle
@@ -1367,9 +1366,11 @@
     const checkedBg = document.querySelector('input[name="bgOwner"]:checked');
     if (checkedBg) applyBackgroundOwner(checkedBg.value);
 
+    // Initialize visibility: show both so the radius split can work
+    splat.visible = true;
+    splat2.visible = true;
+
     if (developerMode) {
-        splat.visible = true;
-        splat2.visible = true;
         document.getElementById('developerControls').style.display = 'block';
         document.getElementById('toggleSplat1').addEventListener('click', () => {
             splat.visible = !splat.visible;
@@ -1377,9 +1378,6 @@
         document.getElementById('toggleSplat2').addEventListener('click', () => {
             splat2.visible = !splat2.visible;
         });
-    } else {
-        splat.visible = true;
-        splat2.visible = false;
     }
 
     // TapDots Logic
