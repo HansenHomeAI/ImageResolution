@@ -42,7 +42,7 @@
             margin-right: 10px;
             padding: 10px;
         }
-
+        
         /* Render control panel (bottom-right) - Minimalist Notion-style Liquid Glass - Compact */
         #splatControlPanel {
             position: absolute;
@@ -96,7 +96,35 @@
             color: rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .splat-toggle {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .splat-toggle.on {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.5);
+            color: rgba(255, 255, 255, 0.95);
+        }
+        .splat-toggle.off {
+            background: rgba(158, 158, 158, 0.2);
+            border-color: rgba(158, 158, 158, 0.3);
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .splat-toggle:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.3);
         }
         .control-group {
             margin-bottom: 6px;
@@ -197,6 +225,10 @@
             margin: 0;
         }
         .radio-row input[type="radio"] {
+            margin: 0;
+            accent-color: #fff;
+        }
+        .radio-row input[type="checkbox"] {
             margin: 0;
             accent-color: #fff;
         }
@@ -723,7 +755,10 @@
         
         <!-- Splat 1 Section -->
         <div class="splat-section">
-            <div class="splat-section-title">Splat 1</div>
+            <div class="splat-section-title">
+                <span>Splat 1</span>
+                <div class="splat-toggle on" id="splat1Toggle">ON</div>
+            </div>
             
             <div class="control-group">
                 <label>Radius & Scale</label>
@@ -764,7 +799,10 @@
         
         <!-- Splat 2 Section -->
         <div class="splat-section">
-            <div class="splat-section-title">Splat 2</div>
+            <div class="splat-section-title">
+                <span>Splat 2</span>
+                <div class="splat-toggle on" id="splat2Toggle">ON</div>
+            </div>
             
             <div class="control-group">
                 <label>Radius & Scale</label>
@@ -810,6 +848,15 @@
                 <div class="radio-row">
                     <label><input type="radio" name="bgOwner" value="splat1" checked> Splat 1</label>
                     <label><input type="radio" name="bgOwner" value="splat2"> Splat 2</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Origin Marker Toggle -->
+        <div class="splat-section">
+            <div class="control-group">
+                <div class="radio-row">
+                    <label><input type="checkbox" id="originMarkerToggle" checked> Show Origin Marker</label>
                 </div>
             </div>
         </div>
@@ -1379,9 +1426,56 @@
     const checkedBg = document.querySelector('input[name="bgOwner"]:checked');
     if (checkedBg) applyBackgroundOwner(checkedBg.value);
 
+    // Origin marker toggle
+    const originMarkerToggle = document.getElementById('originMarkerToggle');
+    if (originMarkerToggle) {
+        originMarkerToggle.addEventListener('change', (e) => {
+            originMarker.visible = e.target.checked;
+        });
+        // Initialize visibility based on checkbox state
+        originMarker.visible = originMarkerToggle.checked;
+    }
+
+    // Splat visibility toggles
+    function updateSplatToggle(id, isVisible) {
+        const toggle = document.getElementById(`${id}Toggle`);
+        const target = splats[id];
+        if (toggle && target) {
+            target.visible = isVisible;
+            if (isVisible) {
+                toggle.textContent = 'ON';
+                toggle.classList.remove('off');
+                toggle.classList.add('on');
+            } else {
+                toggle.textContent = 'OFF';
+                toggle.classList.remove('on');
+                toggle.classList.add('off');
+            }
+        }
+    }
+
+    const splat1Toggle = document.getElementById('splat1Toggle');
+    const splat2Toggle = document.getElementById('splat2Toggle');
+    
+    if (splat1Toggle) {
+        splat1Toggle.addEventListener('click', () => {
+            const isCurrentlyVisible = splats.splat1.visible;
+            updateSplatToggle('splat1', !isCurrentlyVisible);
+        });
+    }
+    
+    if (splat2Toggle) {
+        splat2Toggle.addEventListener('click', () => {
+            const isCurrentlyVisible = splats.splat2.visible;
+            updateSplatToggle('splat2', !isCurrentlyVisible);
+        });
+    }
+
     // Initialize visibility: show both so the radius split can work
-    splat.visible = true;
-    splat2.visible = true;
+        splat.visible = true;
+        splat2.visible = true;
+    updateSplatToggle('splat1', true);
+    updateSplatToggle('splat2', true);
 
     if (developerMode) {
         document.getElementById('developerControls').style.display = 'block';
