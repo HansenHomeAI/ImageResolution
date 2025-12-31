@@ -586,7 +586,8 @@
         },
         scene: {
             origin: { x: 0, y: 0, z: 0 },
-            targetLimit: { x: 1, z: 1 }
+            targetLimit: { x: 1, z: 1 },
+            maxRenderRadius: 50 // Limit rendering to this radius from origin
         },
         animation: {
             autoRotate: true,
@@ -798,6 +799,46 @@
     // Developer mode toggle
     const developerMode = parameters.developerMode;
 
+    function applySplatCulling(splat, radius) {
+        splat.material.onBeforeCompile = (shader) => {
+            shader.uniforms.cullRadius = { value: radius };
+            shader.uniforms.cullCenter = { value: new Vector3(0, 0, 0) };
+
+            // Inject varying into vertex shader
+            shader.vertexShader = `
+                varying vec3 vWorldPosition;
+                ${shader.vertexShader}
+            `;
+
+            // Calculate world position in vertex shader
+            // Use regex to match 'void main() {' with flexibility
+            shader.vertexShader = shader.vertexShader.replace(
+                /void\s+main\s*\(\s*\)\s*\{/,
+                `
+                void main() {
+                    vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+                `
+            );
+
+            // Inject varying and uniforms into fragment shader
+            shader.fragmentShader = `
+                varying vec3 vWorldPosition;
+                uniform float cullRadius;
+                uniform vec3 cullCenter;
+                ${shader.fragmentShader}
+            `;
+
+            // Discard fragments outside radius
+            shader.fragmentShader = shader.fragmentShader.replace(
+                /void\s+main\s*\(\s*\)\s*\{/,
+                `
+                void main() {
+                    if (distance(vWorldPosition, cullCenter) > cullRadius) discard;
+                `
+            );
+        };
+    }
+
     // Splat configurations
     const splatConfigs = {
         splat1: {
@@ -828,6 +869,7 @@
     splat.rotation.z = MathUtils.degToRad(splatConfigs.splat1.rotation.z);
     splat.scale.setScalar(splatConfigs.splat1.scale);
     scene.add(splat);
+    applySplatCulling(splat, parameters.scene.maxRenderRadius);
 
     // Create the second splat
     let splat2 = new LumaSplatsThree({
@@ -843,6 +885,7 @@
     splat2.rotation.z = MathUtils.degToRad(splatConfigs.splat2.rotation.z);
     splat2.scale.setScalar(splatConfigs.splat2.scale);
     scene.add(splat2);
+    applySplatCulling(splat2, parameters.scene.maxRenderRadius);
 
     const splats = {
         splat1: splat,
