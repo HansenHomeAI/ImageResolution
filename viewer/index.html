@@ -64,6 +64,7 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.2) transparent;
+            display: none; /* Hidden by default, can be shown via code */
         }
         #splatControlPanel::-webkit-scrollbar {
             width: 4px;
@@ -856,7 +857,7 @@
         <div class="splat-section">
             <div class="control-group">
                 <div class="radio-row">
-                    <label><input type="checkbox" id="originMarkerToggle" checked> Show Origin Marker</label>
+                    <label><input type="checkbox" id="originMarkerToggle"> Show Origin Marker</label>
                 </div>
             </div>
         </div>
@@ -908,7 +909,7 @@
             elasticity: 0.05
         },
         maxDistance: {
-            base: 5,
+            base: 50,
             responsiveness: 1.7
         },
         // (1) Added new minDistance parameter
@@ -1148,17 +1149,17 @@
     const splatConfigs = {
         splat1: {
             source: 'https://lumalabs.ai/embed/3b41e172-dd0f-48a4-9065-893862bfc8b1?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
-            position: new Vector3(0.063, 0, -0.165),
-            rotation: { x: 0, y: 0, z: 0 },
-            scale: 1,
-            culling: { radius: 15, mode: 'inside' } // Foreground: inside 15 radius
+            position: new Vector3(0, -0.56, 0),
+            rotation: { x: 1.3, y: 0, z: 0.0 },
+            scale: 1.00,
+            culling: { radius: 3.9, mode: 'inside' }
         },
         splat2: {
             source: 'https://lumalabs.ai/embed/04a8b1ce-135f-4537-aeeb-e4eed6f81815?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
-            position: new Vector3(0, -0.72, 0),
-            rotation: { x: 0, y: 0, z: 0 },
-            scale: 1,
-            culling: { radius: 15, mode: 'outside' } // Horizon/background: outside 15 radius
+            position: new Vector3(0, 0, -0.55),
+            rotation: { x: 0, y: 32.6, z: 0 },
+            scale: 0.75,
+            culling: { radius: 0.0, mode: 'outside' }
         }
     };
 
@@ -1432,9 +1433,12 @@
         originMarkerToggle.addEventListener('change', (e) => {
             originMarker.visible = e.target.checked;
         });
-        // Initialize visibility based on checkbox state
+        // Initialize visibility based on checkbox state (hidden by default)
         originMarker.visible = originMarkerToggle.checked;
     }
+
+    // Control panel visibility - hidden by default, can be shown via code:
+    // document.getElementById('splatControlPanel').style.display = 'block';
 
     // Splat visibility toggles
     function updateSplatToggle(id, isVisible) {
@@ -1471,9 +1475,9 @@
         });
     }
 
-    // Initialize visibility: show both so the radius split can work
-        splat.visible = true;
-        splat2.visible = true;
+    // Initialize visibility based on defaults
+    splat.visible = true;  // Splat 1 starts ON
+    splat2.visible = true; // Splat 2 starts ON
     updateSplatToggle('splat1', true);
     updateSplatToggle('splat2', true);
 
