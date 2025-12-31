@@ -587,7 +587,7 @@
         scene: {
             origin: { x: 0, y: 0, z: 0 },
             targetLimit: { x: 1, z: 1 },
-            maxRenderRadius: 50 // Limit rendering to this radius from origin
+            maxRenderRadius: 1.0 // Limit rendering to this radius from origin (adjust as needed)
         },
         animation: {
             autoRotate: true,
@@ -801,40 +801,29 @@
 
     function applySplatCulling(splat, radius) {
         splat.material.onBeforeCompile = (shader) => {
+            // Add uniform for cull radius
             shader.uniforms.cullRadius = { value: radius };
             shader.uniforms.cullCenter = { value: new Vector3(0, 0, 0) };
 
-            // Inject varying into vertex shader
+            // Prepend uniform declarations to vertex shader
             shader.vertexShader = `
-                varying vec3 vWorldPosition;
+                uniform float cullRadius;
+                uniform vec3 cullCenter;
                 ${shader.vertexShader}
             `;
 
-            // Calculate world position in vertex shader
-            // Use regex to match 'void main() {' with flexibility
+            // Inject distance culling check right after the splat position 'c' is calculated
+            // The Luma shader calculates: vec3 c=vec3(a,b.x); which is the actual splat world position
+            // We inject our culling check right after this line
             shader.vertexShader = shader.vertexShader.replace(
-                /void\s+main\s*\(\s*\)\s*\{/,
-                `
-                void main() {
-                    vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-                `
-            );
-
-            // Inject varying and uniforms into fragment shader
-            shader.fragmentShader = `
-                varying vec3 vWorldPosition;
-                uniform float cullRadius;
-                uniform vec3 cullCenter;
-                ${shader.fragmentShader}
-            `;
-
-            // Discard fragments outside radius
-            shader.fragmentShader = shader.fragmentShader.replace(
-                /void\s+main\s*\(\s*\)\s*\{/,
-                `
-                void main() {
-                    if (distance(vWorldPosition, cullCenter) > cullRadius) discard;
-                `
+                /vec3 c=vec3\(a,b\.x\);/,
+                `vec3 c=vec3(a,b.x);
+                // Distance-based culling
+                float splatDist = length(c - cullCenter);
+                if (splatDist > cullRadius) {
+                    gl_Position = vec4(0., 0., 2., 1.);
+                    return;
+                }`
             );
         };
     }
