@@ -42,6 +42,66 @@
             margin-right: 10px;
             padding: 10px;
         }
+
+        /* Render control panel (bottom-right) */
+        #splatControlPanel {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            width: 260px;
+            background: rgba(128, 128, 128, 0.30);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            border-radius: 16px;
+            padding: 12px 14px;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            z-index: 10;
+            box-sizing: border-box;
+        }
+        #splatControlPanel h3 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 6px 0;
+            gap: 6px;
+            font-size: 13px;
+        }
+        .control-row label {
+            flex: 1 1 auto;
+        }
+        .control-row input[type="range"] {
+            flex: 1 1 120px;
+        }
+        .control-row select {
+            flex: 1 1 auto;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 4px 6px;
+        }
+        .control-row .value {
+            width: 48px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        .radio-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .radio-row label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
         
         /* Compass Button - Commented out for later use */
         /*
@@ -558,6 +618,40 @@
         <button id="toggleSplat1">Toggle Splat 1</button>
         <button id="toggleSplat2">Toggle Splat 2</button>
     </div>
+
+    <!-- Render control panel (bottom-right) -->
+    <div id="splatControlPanel">
+        <h3>Render Controls</h3>
+        <div class="control-row">
+            <label for="splat1Radius">Splat 1 radius</label>
+            <input type="range" id="splat1Radius" min="0.05" max="5" step="0.01">
+            <span class="value" id="splat1RadiusValue"></span>
+        </div>
+        <div class="control-row">
+            <label for="splat1Mode">Splat 1 mode</label>
+            <select id="splat1Mode">
+                <option value="inside">Inside</option>
+                <option value="outside">Outside</option>
+            </select>
+        </div>
+        <div class="control-row">
+            <label for="splat2Radius">Splat 2 radius</label>
+            <input type="range" id="splat2Radius" min="0.05" max="5" step="0.01">
+            <span class="value" id="splat2RadiusValue"></span>
+        </div>
+        <div class="control-row">
+            <label for="splat2Mode">Splat 2 mode</label>
+            <select id="splat2Mode">
+                <option value="inside">Inside</option>
+                <option value="outside">Outside</option>
+            </select>
+        </div>
+        <div class="radio-row">
+            <span>Background priority:</span>
+            <label><input type="radio" name="bgOwner" value="splat1" checked> Splat 1</label>
+            <label><input type="radio" name="bgOwner" value="splat2"> Splat 2</label>
+        </div>
+    </div>
     <script type="importmap">
     {
         "imports": {
@@ -591,7 +685,7 @@
             // Controls whether splats are visible inside the radius (default) or only outside it
             // 'inside': show splats with distance <= maxRenderRadius
             // 'outside': hide splats with distance <  maxRenderRadius (inverse mask)
-            renderRadiusMode: 'outside'
+            renderRadiusMode: 'inside'
         },
         animation: {
             autoRotate: true,
@@ -837,19 +931,26 @@
         };
     }
 
+    const defaultCulling = {
+        radius: parameters.scene.maxRenderRadius,
+        mode: parameters.scene.renderRadiusMode
+    };
+
     // Splat configurations
     const splatConfigs = {
         splat1: {
             source: '',
             position: new Vector3(0.063, 0, -0.165),
             rotation: { x: 0, y: 0, z: 0 },
-            scale: 1
+            scale: 1,
+            culling: { ...defaultCulling }
         },
         splat2: {
             source: 'https://lumalabs.ai/embed/35da8a57-b2d8-4cd2-958e-1f449bf8ecf2?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
             position: new Vector3(0, -0.72, 0),
             rotation: { x: 0, y: 0, z: 0 },
-            scale: 1
+            scale: 1,
+            culling: { ...defaultCulling }
         }
     };
 
@@ -867,7 +968,7 @@
     splat.rotation.z = MathUtils.degToRad(splatConfigs.splat1.rotation.z);
     splat.scale.setScalar(splatConfigs.splat1.scale);
     scene.add(splat);
-    applySplatCulling(splat, parameters.scene.maxRenderRadius, parameters.scene.renderRadiusMode);
+    applySplatCulling(splat, splatConfigs.splat1.culling.radius, splatConfigs.splat1.culling.mode);
 
     // Create the second splat
     let splat2 = new LumaSplatsThree({
@@ -883,12 +984,92 @@
     splat2.rotation.z = MathUtils.degToRad(splatConfigs.splat2.rotation.z);
     splat2.scale.setScalar(splatConfigs.splat2.scale);
     scene.add(splat2);
-    applySplatCulling(splat2, parameters.scene.maxRenderRadius, parameters.scene.renderRadiusMode);
+    applySplatCulling(splat2, splatConfigs.splat2.culling.radius, splatConfigs.splat2.culling.mode);
 
     const splats = {
         splat1: splat,
         splat2: splat2
     };
+
+    // Culling helpers
+    function updateSplatRadius(id, radius) {
+        const cfg = splatConfigs[id];
+        const target = splats[id];
+        if (cfg) cfg.culling.radius = radius;
+        if (target?.material?.uniforms?.cullRadius) {
+            target.material.uniforms.cullRadius.value = radius;
+            target.material.needsUpdate = true;
+        }
+        const input = document.getElementById(`${id}Radius`);
+        const valEl = document.getElementById(`${id}RadiusValue`);
+        if (input) input.value = radius;
+        if (valEl) valEl.textContent = radius.toFixed(2);
+    }
+
+    function updateSplatMode(id, mode) {
+        const cfg = splatConfigs[id];
+        const target = splats[id];
+        if (cfg) cfg.culling.mode = mode;
+        if (target?.material?.uniforms?.cullInvert) {
+            target.material.uniforms.cullInvert.value = mode === 'outside' ? 1.0 : 0.0;
+            target.material.needsUpdate = true;
+        }
+        const select = document.getElementById(`${id}Mode`);
+        if (select) select.value = mode;
+    }
+
+    // Background precedence between splats
+    let backgroundOwner = 'splat1';
+    function applyBackgroundOwner(owner) {
+        backgroundOwner = owner;
+        const primary = splats[owner];
+        const secondary = splats[owner === 'splat1' ? 'splat2' : 'splat1'];
+        if (primary) primary.renderOrder = 1001;
+        if (secondary) secondary.renderOrder = 999;
+        // Optional: ensure both remain visible; controls below can toggle visibility separately if needed
+    }
+
+    // Wire UI controls
+    const panelBindings = [
+        { id: 'splat1', radiusEl: 'splat1Radius', modeEl: 'splat1Mode', radiusValEl: 'splat1RadiusValue' },
+        { id: 'splat2', radiusEl: 'splat2Radius', modeEl: 'splat2Mode', radiusValEl: 'splat2RadiusValue' }
+    ];
+
+    panelBindings.forEach(({ id }) => {
+        const cfg = splatConfigs[id];
+        if (cfg) {
+            updateSplatRadius(id, cfg.culling.radius);
+            updateSplatMode(id, cfg.culling.mode);
+        }
+    });
+
+    panelBindings.forEach(({ id, radiusEl, modeEl }) => {
+        const radiusInput = document.getElementById(radiusEl);
+        const modeSelect = document.getElementById(modeEl);
+        if (radiusInput) {
+            radiusInput.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) updateSplatRadius(id, val);
+            });
+        }
+        if (modeSelect) {
+            modeSelect.addEventListener('change', (e) => {
+                updateSplatMode(id, e.target.value);
+            });
+        }
+    });
+
+    const bgRadios = document.querySelectorAll('input[name="bgOwner"]');
+    bgRadios.forEach((radio) => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                applyBackgroundOwner(e.target.value);
+            }
+        });
+    });
+    // Initialize background owner based on default radio state
+    const checkedBg = document.querySelector('input[name="bgOwner"]:checked');
+    if (checkedBg) applyBackgroundOwner(checkedBg.value);
 
     if (developerMode) {
         splat.visible = true;
