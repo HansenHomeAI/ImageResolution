@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edgewood Farm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fonts from original Shell.html -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Helvetica+Neue&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000; /* Set background to black */
+            touch-action: none; /* Disable default touch behaviors */
+            user-select: none; /* Disable text selection */
+            -webkit-user-select: none; /* Safari specific styling */
+        }
+
+        /* Edgewood Farm UI Font Override */
+        .menu-container, .details-box, .details-content, .details-inner {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        #vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(to top, black 0%, transparent 12%);
+            mix-blend-mode: multiply;
+        }
+        /* Developer mode controls */
+        #developerControls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        #developerControls button {
+            margin-right: 10px;
+            padding: 10px;
+        }
+        
+        /* Compass Button - Commented out for later use */
+        /*
+        #menuButton {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #333;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        #compassArrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 20px solid #e74c3c;
+            transform-origin: center bottom;
+            transition: transform 0.1s ease-out;
+            position: relative;
+        }
+        
+        #compassArrow::after {
+            content: '';
+            position: absolute;
+            bottom: -22px;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 8px solid #c0392b;
+        }
+        */
+
+        /* Edgewood Farm UI Styles - Ported with Extreme Care */
+        
+        /* Prevent text selection and highlight */
+        div, p, h1, h2, h3, h4, h5, h6, span {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        img {
+            user-drag: none;
+            -webkit-user-drag: none;
+        }
+
+        /* Invisible overlay when details are open */
+        #overlay-ui {
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            z-index: 8; 
+            background: transparent;
+            display: none; 
+        }
+        #overlay-ui.active {
+            display: block;
+        }
+
+        /* Parent Menu (default base values) */
+        .menu-container {
+            display: flex;
+            width: 105px;
+            height: 59px;
+            padding: 7px;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 1px;
+            border-radius: 30px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(128, 128, 128, 0.30);
+            -webkit-backdrop-filter: blur(50px);
+            backdrop-filter: blur(50px);
+            -webkit-transform-origin: left bottom;
+            transform-origin: left bottom; /* Will use this when scaling */
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        .menu-container::before {
+            content: "";
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            border-radius: inherit;
+            background: linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 41%, rgba(255,255,255,0) 57%, rgba(255,255,255,0.4) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            padding: 1.4px;
+            pointer-events: none;
+        }
+
+        .menu-button {
+            width: 45px;
+            height: 45px;
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 23.5px;
+            cursor: pointer;
+            overflow: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        .menu-button img {
+            width: 21px;
+            height: 21px;
+            position: relative;
+            z-index: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Hover circle for devices with actual hover capabilities */
+        @media (hover:hover) {
+            .menu-button:hover::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.15);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+                -webkit-transition: -webkit-transform 0.3s ease, opacity 0.3s ease;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                opacity: 1;
+                z-index: 0;
+            }
+        }
+
+        /* For touch devices, we'll use a class "active" added via JS to simulate the hover effect */
+        .menu-button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            -webkit-transform: scale(0);
+            transform: scale(0);
+            opacity: 0;
+            z-index: 0;
+            -webkit-transition: -webkit-transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .menu-button.active::before {
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Details Box (default base values) */
+        .details-box {
+            position: absolute;
+            z-index: 9; 
+            top: 60px;
+            left: 20px;
+            right: 20px;
+            bottom: 60px;
+            border-radius: 30px;
+            background: rgba(128,128,128,0.30);
+            -webkit-backdrop-filter: blur(50px);
+            backdrop-filter: blur(50px);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            -webkit-transform: scale(0.95);
+            transform: scale(0.95);
+            pointer-events: none;
+            -webkit-transition: opacity 0.3s ease, -webkit-transform 0.3s ease;
+            -webkit-transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .details-box::before {
+            content: "";
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            border-radius: inherit;
+            background: linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 41%, rgba(255,255,255,0) 57%, rgba(255,255,255,0.4) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            padding: 1.4px;
+            pointer-events: none;
+        }
+
+        .details-box.show {
+            opacity: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* Ensure no native scrollbar: use overflow:scroll and hide scrollbar completely */
+        .details-content {
+            flex: 1;
+            margin: 4px; 
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .details-content::-webkit-scrollbar {
+            width: 0;
+            height: 0; /* Ensure no visible scrollbar on iOS */
+        }
+
+        .details-inner {
+            padding: 55px 30px; 
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar {
+            position: absolute;
+            right: 3px; 
+            top: 0; 
+            bottom: 0; 
+            width: 5px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            opacity: 0; 
+            -webkit-transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .custom-scroll-thumb {
+            position: relative;
+            width: 2px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 4px;
+            -webkit-transition: width 0.2s ease, background 0.2s ease;
+            transition: width 0.2s ease, background 0.2s ease;
+            pointer-events: auto;
+            cursor: grab;
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+
+        .custom-scrollbar:hover .custom-scroll-thumb,
+        .custom-scroll-thumb:active {
+            width: 5px; 
+            background: rgba(255,255,255,1);
+        }
+
+        .details-content h1 {
+            font-size: 30px;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .details-content p {
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0.2px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 100px;
+        }
+
+        .legal-disclaimer {
+            font-size: 14px;
+            line-height: 1.3;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+        }
+
+        /* Keyframes for the spring-like animations */
+        @-webkit-keyframes shrinkIcon {
+            0% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+            100% {
+                -webkit-transform: scale(0.7);
+                transform: scale(0.7);
+            }
+        }
+        @keyframes shrinkIcon {
+            0% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+            100% {
+                -webkit-transform: scale(0.7);
+                transform: scale(0.7);
+            }
+        }
+
+        @-webkit-keyframes expandIcon {
+            0% {
+                -webkit-transform: scale(0.7);
+                transform: scale(0.7);
+            }
+            60% {
+                -webkit-transform: scale(1.05);
+                transform: scale(1.05);
+            }
+            100% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+        @keyframes expandIcon {
+            0% {
+                -webkit-transform: scale(0.7);
+                transform: scale(0.7);
+            }
+            60% {
+                -webkit-transform: scale(1.05);
+                transform: scale(1.05);
+            }
+            100% {
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+        
+        /* Add this below your existing styles */
+        .touch-scrollbars {
+            scrollbar-width: auto !important; /* For Firefox */
+        }
+        .touch-scrollbars::-webkit-scrollbar {
+            width: 8px; /* or whatever width you like for native scrollbar on iOS/Android */
+            height: 8px;
+        }
+
+        /* Fullscreen button moved to details box upper right */
+        .details-fullscreen-button {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 23.5px;
+            cursor: pointer;
+            overflow: hidden;
+            z-index: 11;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .details-fullscreen-button img {
+            width: 21px;
+            height: 21px;
+            position: relative;
+            z-index: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Hover effects for fullscreen button in details box */
+        @media (hover:hover) {
+            .details-fullscreen-button:hover::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.15);
+                -webkit-transform: scale(1);
+                transform: scale(1);
+                -webkit-transition: -webkit-transform 0.3s ease, opacity 0.3s ease;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                opacity: 1;
+                z-index: 0;
+            }
+        }
+
+        .details-fullscreen-button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            -webkit-transform: scale(0);
+            transform: scale(0);
+            opacity: 0;
+            z-index: 0;
+            -webkit-transition: -webkit-transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .details-fullscreen-button.active::before {
+            -webkit-transform: scale(1);
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Compass icon in parent menu */
+        #compassIcon {
+            width: 21px;
+            height: 21px;
+            position: relative;
+            z-index: 1;
+            transform-origin: center center; /* Center rotation point */
+            /* No transition on transform to allow real-time rotation */
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="vignette"></div>
+    <div id="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; color: white; font-size: 24px; font-family: Arial, sans-serif;">Lot #1</div>
+
+    <!-- Compass temporarily hidden - will be used later for UI functionality -->
+    <!-- <div id="menuButton">
+        <div id="compassArrow"></div>
+    </div> -->
+
+    <!-- Edgewood Farm UI - Ported with Extreme Care -->
+    
+    <!-- Invisible overlay to detect outside clicks when details are open -->
+    <div id="overlay-ui"></div>
+
+    <div class="menu-container" id="menuContainer">
+        <div id="detailsButton" class="menu-button">
+            <img src="https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/DetailsIconDefault.svg" alt="Details" draggable="false">
+        </div>
+        <div id="compassButton" class="menu-button">
+            <img id="compassIcon" src="https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/NorthOutline.svg" alt="Compass" draggable="false">
+        </div>
+    </div>
+
+    <div id="detailsBox" class="details-box">
+        <!-- Fullscreen button moved to upper right corner of details box -->
+        <div id="fullscreenButton" class="details-fullscreen-button">
+            <img src="https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/FullScreenIconDefault.svg" alt="Fullscreen" draggable="false">
+        </div>
+        <div class="details-content" id="detailsContent">
+            <div class="details-inner" id="detailsInner">
+                <h1>Edgewood Farm</h1>
+                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.4); margin:15px 0;">
+                <hr style="border:none; border-top:0px solid rgba(255,255,255,0.4); margin:13px 0;">
+
+                <p>Edgewood Farm is a historic and thoroughly improved farm located just outside of Orange, Virginia. Set against the Blue Ridge Mountains, Edgewood’s rolling topography features a balanced mix of scenic beauty, agricultural utility, and the classic lifestyle of Virginia’s hunt country. The expansive, five-bedroom, main house (circa 1853) anchors the property and is surrounded by a comprehensive set of complementing structures, including a pool and pool house, manager’s house, barns, and a fully retrofitted event space, which is comprised of several historic support structures and barns that can easily accommodate weddings and other events.</p>
+
+<p>The Rapidan River traces the farm’s southern and eastern boundaries for nearly two and a half miles, creating a riparian buffer that further adds to the farm’s bucolic appeal. Additional water features include two stocked ponds. The pastures are actively leased for cattle grazing and hay production, while recreational trails wind throughout the land. Located ten minutes from Orange, forty-five minutes from Charlottesville, and only ninety minutes from Washington, D.C., Edgewood captures the perfect equilibrium of privacy, accessibility, recreation, and agriculture, all while providing the infrastructure and location needed to support a dynamic and engaging lifestyle.</p>
+
+                <div class="legal-disclaimer">
+                    <hr style="border:none; border-top:1px solid rgba(255,255,255,0.4); margin:30px 0;">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="custom-scrollbar" id="customScrollbar">
+            <div class="custom-scroll-thumb" id="customThumb"></div>
+        </div>
+    </div>
+
+    <!-- Developer mode controls -->
+    <div id="developerControls">
+        <button id="toggleSplat1">Toggle Splat 1</button>
+        <button id="toggleSplat2">Toggle Splat 2</button>
+    </div>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/",
+            "@lumaai/luma-web": "https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"
+        }
+    }
+    </script>
+    <script type="module">
+    import { WebGLRenderer, PerspectiveCamera, Scene, Color, Vector3, SphereGeometry, CylinderGeometry, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, PlaneGeometry, DoubleSide, MeshStandardMaterial, Texture, MathUtils, Matrix4 } from 'three';
+
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { LumaSplatsThree } from '@lumaai/luma-web';
+
+    function isChrome() {
+        return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    }
+
+    // Parameters
+    const parameters = {
+        camera: {
+            minY: 0.2,
+            maxZoomOut: 1000,
+            startPosition: { x: 0, y: 0.4, z: 4.7 },
+        },
+        scene: {
+            origin: { x: 0, y: 0, z: 0 },
+            targetLimit: { x: 1, z: 1 }
+        },
+        animation: {
+            autoRotate: true,
+            startRadius: 2,
+            speed: 0.003,
+            initialAngle: 0,  // Start at 200 degrees
+            center: { x: 0, y: 0, z: 0 }   // ← new!
+        },
+        rebound: {
+            speed: 0.2,
+            elasticity: 0.05
+        },
+        maxDistance: {
+            base: 5,
+            responsiveness: 1.7
+        },
+        // (1) Added new minDistance parameter
+        minDistance: {
+            center: { x: 0, y: -0.5, z: 0 },
+            radius: 0.8
+        },
+        developerMode: false,  // Set this to true to activate developer mode
+        // Compass configuration - easily adjustable
+        compass: {
+            northDirection: 218  // 0 = positive Z axis, 90 = positive X axis, etc.
+        }
+    };
+
+    // Hotspot configurations (regular)
+    const hotspotConfigurations = [
+        //{ text: 'Main House', position: { x: 1.2, y: -0.39, z: 0.9 }, scale: 0.3 },
+        
+        
+
+
+    ];
+
+    // "Sold" hotspot configuration (new separate 'Sold' class)
+    // Added a 'verticalOffset' to allow controlling its height offset
+    const soldHotspotConfigurations = [
+        //{ 
+            //text: 'SOLD', 
+           // position: { x: 0.22, y: 0.5, z: -0.85 }, 
+            //scale: 0.2,
+           // verticalOffset: 0.06 // You can adjust this to move the text up/down while rotating around the same center
+        //},
+    ];
+
+    // Centralized control section for TapDots
+    const tapDotConfigurations = [
+        // Example TapDots (none currently)
+        //{ position: { x: 0, y: 0, z: 1 }, scale: 1, icon: 'info' },
+    ];
+
+    // Base tap detection radius in pixels
+    const baseTapDetectionRadius = 15; // Base value for tap detection radius
+
+    // Centralized control section for BorderDots and BorderLines
+    const borderDotPositions = [
+    
+    //{ name: 'BorderDot_400', position: { x: 0, y: 0, z: 0 } },
+    //{ name: 'BorderDot_401', position: { x: 1, y: 0, z: 0 } },
+    //{ name: 'BorderDot_43', position: { x: 0.1, y: -0.55, z: -2.1 } },
+    //{ name: 'BorderDot_44', position: { x: 0.1, y: -0.55, z: -2.2 } },
+    
+    
+
+
+
+
+       
+
+    ];
+
+    const borderLineConnections = [
+        //{ start: 'BorderDot_1', end: 'BorderDot_2' },
+        //{ start: 'BorderDot_2', end: 'BorderDot_3' },
+
+    
+        
+    ];
+
+    // Border Dot Parameters
+    const borderDotParams = {
+        radius: 0.01,
+        widthSegments: 16,
+        heightSegments: 16,
+        color: 0xffa500
+    };
+
+    // Base sizes for TapDots and Icons
+    const tapDotBaseSize = 0.04; // Adjust this value to change the TapDot size
+    const iconBaseSize = 0.08;   // Adjust this value to change the Icon size
+
+    // Zone configurations
+    const zoneConfigurations = [
+        {
+            name: 'Zone1',
+            center: { x: 0, y: 0, z: 0 }, // Center point of the zone
+            radius: 100.6, // Radius of the zone
+            splatsOn: ['splat2'], // Splats to turn ON when inside this zone
+            splatsOff: ['splat1'] // Splats to turn OFF when inside this zone
+        }
+    ];
+
+    if (isChrome()) {
+        parameters.animation.speed *= 0.5;
+    }
+
+    let renderer = new WebGLRenderer({ antialias: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(new Color(0x000000));
+    renderer.setPixelRatio(window.devicePixelRatio * 0.8);
+    document.body.appendChild(renderer.domElement);
+
+    let scene = new Scene();
+
+    let camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, parameters.camera.maxZoomOut);
+    camera.position.set(parameters.camera.startPosition.x, parameters.camera.startPosition.y, parameters.camera.startPosition.z);
+
+    let controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+
+    // (2) Halved the zoom sensitivity
+    controls.zoomSpeed = 0.5;
+
+	// ←– Shoot the target at your origin
+	controls.target.set(0, 0, 0);
+	controls.update();  // make OrbitControls re-sync to that new target
+
+    let sceneCenter = new Vector3(parameters.scene.origin.x, parameters.scene.origin.y, parameters.scene.origin.z);
+
+    controls.addEventListener('change', () => {
+        // Restrict camera Y minimum
+        if (camera.position.y < parameters.camera.minY) {
+            camera.position.y += (parameters.camera.minY - camera.position.y) * parameters.rebound.speed;
+        }
+
+        // Restrict target movement on X and Z axes with elastic rebound
+        const clampRebound = (current, min, max) => {
+            let clamped = Math.min(Math.max(current, min), max);
+            return clamped + (current - clamped) * parameters.rebound.elasticity;
+        };
+        controls.target.x = clampRebound(controls.target.x, -parameters.scene.targetLimit.x, parameters.scene.targetLimit.x);
+        controls.target.y = parameters.scene.origin.y; // Set target Y limit
+        controls.target.z = clampRebound(controls.target.z, -parameters.scene.targetLimit.z, parameters.scene.targetLimit.z);
+
+        // Restrict camera distance from the scene center
+        const maxDistance = calculateMaxDistance();  // Get the updated max distance
+        if (camera.position.distanceTo(sceneCenter) > maxDistance) {
+            let direction = new Vector3().subVectors(camera.position, sceneCenter).normalize();
+            camera.position.copy(direction.multiplyScalar(maxDistance).add(sceneCenter));
+        }
+
+        // (3) Clamp camera to new minDistance
+        const minDistCenter = new Vector3(
+            parameters.minDistance.center.x, 
+            parameters.minDistance.center.y, 
+            parameters.minDistance.center.z
+        );
+        if (camera.position.distanceTo(minDistCenter) < parameters.minDistance.radius) {
+            let direction = new Vector3().subVectors(camera.position, minDistCenter).normalize();
+            camera.position.copy(direction.multiplyScalar(parameters.minDistance.radius).add(minDistCenter));
+        }
+
+        // Zone-based splat toggling
+        if (!developerMode) {
+            let cameraInZone = false;
+
+            for (let zone of zoneConfigurations) {
+                let zoneCenter = new Vector3(zone.center.x, zone.center.y, zone.center.z);
+                let distanceToZone = camera.position.distanceTo(zoneCenter);
+
+                if (distanceToZone <= zone.radius) {
+                    cameraInZone = true;
+                    // Turn the "new" splats on immediately
+                    for (let splatName of zone.splatsOn) {
+                        if (splats[splatName] && !splats[splatName].visible) {
+                            splats[splatName].visible = true;
+                        }
+                    }
+                    // Turn the "old" splats off after 30ms delay
+                    for (let splatName of zone.splatsOff) {
+                        if (splats[splatName] && splats[splatName].visible) {
+                            setTimeout(() => {
+                                splats[splatName].visible = false;
+                            }, 15);
+                        }
+                    }
+                    break; // Assuming only one zone is active at a time
+                }
+            }
+
+            if (!cameraInZone) {
+                // Set default splat visibility when not in any zone
+                // "new" is splat1 here, so it goes on right away
+                splats.splat1.visible = true;
+                // "old" is splat2 here, so it goes off after 30ms
+                if (splats.splat2.visible) {
+                    setTimeout(() => {
+                        splats.splat2.visible = false;
+                    }, 15);
+                }
+            }
+        }
+    });
+
+    // Developer mode toggle
+    const developerMode = parameters.developerMode;
+
+    // Splat configurations
+    const splatConfigs = {
+        splat1: {
+            source: '',
+            position: new Vector3(0.063, 0, -0.165),
+            rotation: { x: 0, y: 0, z: 0 },
+            scale: 1
+        },
+        splat2: {
+            source: 'https://lumalabs.ai/embed/35da8a57-b2d8-4cd2-958e-1f449bf8ecf2?mode=sparkles&background=%23ffffff&color=%23000000&showTitle=true&loadBg=true&logoPosition=bottom-left&infoPosition=bottom-right&cinematicVideo=undefined&showMenu=false',
+            position: new Vector3(0, -0.72, 0),
+            rotation: { x: 0, y: 0, z: 0 },
+            scale: 1
+        }
+    };
+
+    // Create the first splat
+    let splat = new LumaSplatsThree({
+        source: splatConfigs.splat1.source,
+        particleRevealEnabled: true,
+        particleRevealDuration: 3.33 // Speed up by 50%
+    });
+    splat.material.depthTest = true;
+    splat.renderOrder = 999;
+    splat.position.copy(splatConfigs.splat1.position);
+    splat.rotation.x = MathUtils.degToRad(splatConfigs.splat1.rotation.x);
+    splat.rotation.y = MathUtils.degToRad(splatConfigs.splat1.rotation.y);
+    splat.rotation.z = MathUtils.degToRad(splatConfigs.splat1.rotation.z);
+    splat.scale.setScalar(splatConfigs.splat1.scale);
+    scene.add(splat);
+
+    // Create the second splat
+    let splat2 = new LumaSplatsThree({
+        source: splatConfigs.splat2.source,
+        particleRevealEnabled: true,
+        particleRevealDuration: 3.33
+    });
+    splat2.material.depthTest = true;
+    splat2.renderOrder = 999;
+    splat2.position.copy(splatConfigs.splat2.position);
+    splat2.rotation.x = MathUtils.degToRad(splatConfigs.splat2.rotation.x);
+    splat2.rotation.y = MathUtils.degToRad(splatConfigs.splat2.rotation.y);
+    splat2.rotation.z = MathUtils.degToRad(splatConfigs.splat2.rotation.z);
+    splat2.scale.setScalar(splatConfigs.splat2.scale);
+    scene.add(splat2);
+
+    const splats = {
+        splat1: splat,
+        splat2: splat2
+    };
+
+    if (developerMode) {
+        splat.visible = true;
+        splat2.visible = true;
+        document.getElementById('developerControls').style.display = 'block';
+        document.getElementById('toggleSplat1').addEventListener('click', () => {
+            splat.visible = !splat.visible;
+        });
+        document.getElementById('toggleSplat2').addEventListener('click', () => {
+            splat2.visible = !splat2.visible;
+        });
+    } else {
+        splat.visible = true;
+        splat2.visible = false;
+    }
+
+    // TapDots Logic
+    let tapDots = [];
+    const textureLoader = new TextureLoader();
+    const iconTextures = {};
+    const iconsToLoad = [
+        { name: 'info', url: 'https://raw.githubusercontent.com/HansenHomeAI/WhiteInfoIcon/main/3TestIcons-8.png' },
+        { name: 'camera', url: 'https://raw.githubusercontent.com/HansenHomeAI/WhiteCameraIcon/main/3TestIcons-9.png' },
+    ];
+
+    let iconsLoaded = 0;
+    iconsToLoad.forEach(iconData => {
+        textureLoader.load(iconData.url, (texture) => {
+            iconTextures[iconData.name] = texture;
+            iconsLoaded++;
+            if (iconsLoaded === iconsToLoad.length) {
+                tapDotConfigurations.forEach((config, index) => createTapDot(config, index));
+                animate();
+            }
+        },
+        undefined,
+        (err) => {
+            console.error(`Error loading texture: ${iconData.url}`, err);
+        });
+    });
+
+    function generateUniqueColor(index) {
+        index += 1;
+        const r = (index * 37) % 256;
+        const g = (index * 57) % 256;
+        const b = (index * 79) % 256;
+        const minComponent = 50;
+        const maxComponent = 255;
+        const range = maxComponent - minComponent;
+        const adjustComponent = (value) => Math.floor((value / 255) * range + minComponent);
+        const finalR = adjustComponent(r);
+        const finalG = adjustComponent(g);
+        const finalB = adjustComponent(b);
+        return `#${finalR.toString(16).padStart(2,'0')}${finalG.toString(16).padStart(2,'0')}${finalB.toString(16).padStart(2,'0')}`;
+    }
+
+    function createTapDot(config, index) {
+        const { position, scale, icon } = config;
+        const dotColor = generateUniqueColor(index);
+        let dotGeometry = new SphereGeometry(tapDotBaseSize, 32, 32);
+        let dotMaterial = new MeshBasicMaterial({
+            color: 0x2C2C2E,
+            transparent: true,
+            opacity: 0.7
+        });
+        let dot = new Mesh(dotGeometry, dotMaterial);
+        dot.position.set(position.x, position.y, position.z);
+        dot.scale.setScalar(scale || 1);
+
+        const iconGeometry = new PlaneGeometry(iconBaseSize, iconBaseSize);
+        const iconMaterial = new MeshBasicMaterial({
+            map: iconTextures[icon],
+            transparent: true,
+            alphaTest: 0.5
+        });
+        let iconMesh = new Mesh(iconGeometry, iconMaterial);
+        iconMesh.position.copy(dot.position);
+        iconMesh.scale.setScalar(scale || 1);
+
+        tapDots.push({ dot, iconMesh, color: dotColor, scale, index, config });
+        scene.add(dot);
+        scene.add(iconMesh);
+    }
+
+    const hiddenCanvas = document.createElement('canvas');
+    const hiddenContext = hiddenCanvas.getContext('2d');
+    hiddenCanvas.width = window.innerWidth;
+    hiddenCanvas.height = window.innerHeight;
+    hiddenCanvas.style.display = 'none';
+    document.body.appendChild(hiddenCanvas);
+
+    function renderHiddenCanvas() {
+        hiddenContext.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+        tapDots.forEach((tapDot) => {
+            let screenPos = tapDot.dot.position.clone().project(camera);
+            let x = (screenPos.x + 1) / 2 * window.innerWidth;
+            let y = -(screenPos.y - 1) / 2 * window.innerHeight;
+            const distanceToCamera = camera.position.distanceTo(tapDot.dot.position);
+            const dynamicRadius = baseTapDetectionRadius * (tapDot.scale || 1) / distanceToCamera;
+            hiddenContext.fillStyle = tapDot.color;
+            hiddenContext.beginPath();
+            hiddenContext.arc(x, y, dynamicRadius, 0, 2 * Math.PI);
+            hiddenContext.fill();
+        });
+    }
+
+    // Create normal hotspots (unchanged logic)
+    const totalHotspots = hotspotConfigurations.length;
+    const hotspots = hotspotConfigurations.map((config, index) => createHotspot(config, index, totalHotspots));
+
+    // Create "Sold" hotspots (new function, same concept but no sphere + orange text)
+    const soldHotspots = soldHotspotConfigurations.map((config) => createSoldHotspot(config));
+
+    function calculateMaxDistance() {
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        let additionalDistance = (1 / aspectRatio) * parameters.maxDistance.responsiveness;
+        return parameters.maxDistance.base + additionalDistance;
+    }
+
+    function createBorderDot(dotData) {
+        const { name, position } = dotData;
+        let borderDotGeometry = new SphereGeometry(borderDotParams.radius, borderDotParams.widthSegments, borderDotParams.heightSegments);
+        let borderDotMaterial = new MeshBasicMaterial({ color: borderDotParams.color, transparent: true, opacity: 0 });
+        let borderDot = new Mesh(borderDotGeometry, borderDotMaterial);
+        borderDot.scale.y = 0.1;
+        borderDot.position.set(position.x, position.y, position.z);
+        scene.add(borderDot);
+        return { name, mesh: borderDot };
+    }
+
+    // ***** ONLY THIS FUNCTION CHANGED TO REMOVE LENGTH-WISE ROLL *****
+    function createBorderLineBetweenDots(dot1, dot2) {
+        const start = dot1.position;
+        const end = dot2.position;
+        const direction = new Vector3().subVectors(end, start);
+        const length = direction.length();
+        const midPoint = new Vector3().addVectors(start, end).multiplyScalar(0.5);
+
+        const boxThickness = borderDotParams.radius * 2;
+        const boxHeight = 0.08;
+
+        const boxGeometry = new BoxGeometry(length, boxHeight, boxThickness);
+        const boxMaterial = new MeshBasicMaterial({ color: borderDotParams.color, transparent: true, opacity: 0 });
+        const box = new Mesh(boxGeometry, boxMaterial);
+
+        // We define the local X axis as the direction of the line
+        // and then fix the local Y/Z using a stable 'up' vector so we don't roll.
+        let x = direction.clone().normalize();
+        let up = new Vector3(0, 1, 0);
+
+        // If direction is nearly parallel to world up, pick a different stable up
+        if (Math.abs(x.dot(up)) > 0.9999) {
+            up = new Vector3(0, 0, 1);
+        }
+
+        let z = new Vector3().crossVectors(x, up).normalize();
+        let y = new Vector3().crossVectors(z, x).normalize();
+
+        let rotMatrix = new Matrix4();
+        // Create a rotation basis from x,y,z
+        rotMatrix.makeBasis(x, y, z);
+
+        // Position the box at the midpoint
+        let translationMatrix = new Matrix4().makeTranslation(midPoint.x, midPoint.y, midPoint.z);
+
+        box.matrixAutoUpdate = false;
+        box.matrix.multiplyMatrices(translationMatrix, rotMatrix);
+
+        scene.add(box);
+        return box;
+    }
+    // ***** END CHANGE *****
+
+    let fadeDuration = 5;
+    let borderDotDelay = 0.9;
+    let fadeStartTime = null;
+
+    function fadeInBorders(time) {
+        if (!fadeStartTime) fadeStartTime = time;
+        let elapsedTime = (time - fadeStartTime) / 1000;
+        let lineOpacity = Math.min(elapsedTime / fadeDuration, 1);
+        let dotElapsedTime = elapsedTime - borderDotDelay;
+        let dotOpacity = Math.min(Math.max(dotElapsedTime / fadeDuration, 0), 1);
+        borderLines.forEach(box => {
+            box.material.opacity = lineOpacity;
+        });
+        Object.values(borderDots).forEach(dot => {
+            dot.material.opacity = dotOpacity;
+        });
+        if (lineOpacity < 1 || dotOpacity < 1) {
+            requestAnimationFrame(fadeInBorders);
+        }
+    }
+
+    const borderDots = {};
+    const borderLines = [];
+    borderDotPositions.forEach(dotData => {
+        const createdDot = createBorderDot(dotData);
+        borderDots[createdDot.name] = createdDot.mesh;
+    });
+    borderLineConnections.forEach(connection => {
+        const dot1 = borderDots[connection.start];
+        const dot2 = borderDots[connection.end];
+        if (dot1 && dot2) {
+            const borderLine = createBorderLineBetweenDots(dot1, dot2);
+            borderLines.push(borderLine);
+        }
+    });
+    requestAnimationFrame(fadeInBorders);
+
+    // Original hotspot creation function (unchanged)
+    function createHotspot(hotspotConfig, index, totalHotspots) {
+        const { text, position, scale } = hotspotConfig;
+        let dotGeometry = new SphereGeometry(0.03, 32, 32);
+        let dotMaterial = new MeshBasicMaterial({ color: 0xffffff });
+        let dot = new Mesh(dotGeometry, dotMaterial);
+        dot.position.set(position.x, position.y, position.z);
+        dot.scale.setScalar(scale);
+        scene.add(dot);
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 3072;
+        canvas.height = 512;
+        context.fillStyle = 'rgba(255, 255, 255, 0)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.font = '520 250px "Helvetica Neue", Helvetica, Arial, sans-serif';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        context.lineWidth = 5;
+        context.fillStyle = 'white';
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+        context.strokeText(text, canvas.width / 2, canvas.height / 2);
+
+        const texture = new Texture(canvas);
+        texture.needsUpdate = true;
+        const geometry = new PlaneGeometry(2.4, 0.4);
+        const material = new MeshStandardMaterial({
+            map: texture,
+            transparent: false,
+            alphaTest: 0.5,
+            side: DoubleSide,
+            premultipliedAlpha: true,
+            emissive: 'white',
+            emissiveIntensity: 2,
+        });
+        const textPlane = new Mesh(geometry, material);
+        textPlane.position.set(position.x, position.y, position.z);
+        textPlane.rotation.y = MathUtils.degToRad(90);
+        textPlane.scale.setScalar(scale);
+
+        const yTranslation = 0.3 - (index / totalHotspots) * 0.05;
+        textPlane.geometry.translate(0, yTranslation, 0);
+        scene.add(textPlane);
+
+        return { dot, textPlane };
+    }
+
+    // New "Sold" hotspot creation function
+    // Identical to createHotspot except:
+    // - No sphere is created
+    // - The text color is orange (#FF4F40 here)
+    // - We add a controllable verticalOffset (config.verticalOffset)
+    function createSoldHotspot(config) {
+        const { text, position, scale, verticalOffset } = config;
+
+        // Create the text canvas (orange text, no sphere)
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 3072;
+        canvas.height = 512;
+        context.fillStyle = 'rgba(255, 255, 255, 0)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.font = '520 250px "Helvetica Neue", Helvetica, Arial, sans-serif';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        context.lineWidth = 5;
+        // Orange text fill:
+        context.fillStyle = '#BF281B';
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+        context.strokeText(text, canvas.width / 2, canvas.height / 2);
+
+        const texture = new Texture(canvas);
+        texture.needsUpdate = true;
+        const geometry = new PlaneGeometry(2.4, 0.4);
+        const material = new MeshStandardMaterial({
+            map: texture,
+            transparent: false,
+            alphaTest: 0.5,
+            side: DoubleSide,
+            premultipliedAlpha: true,
+            emissive: '#BF281B',
+            emissiveIntensity: 2,
+        });
+
+        const textPlane = new Mesh(geometry, material);
+        // Position at the same center but allow a verticalOffset
+        textPlane.position.set(position.x, position.y + (verticalOffset || 0), position.z);
+        textPlane.rotation.y = MathUtils.degToRad(90);
+        textPlane.scale.setScalar(scale);
+
+        // You can further modify geometry translation if desired, but here we keep it minimal
+        scene.add(textPlane);
+
+        // Return something if we need to track it
+        return { textPlane };
+    }
+
+    window.addEventListener('resize', function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        parameters.scene.maxDistanceFromCenter = calculateMaxDistance();
+    });
+
+    let angle = parameters.animation.initialAngle !== undefined 
+        ? MathUtils.degToRad(parameters.animation.initialAngle) 
+        : 0;
+    let autoRotate = parameters.animation.autoRotate;
+
+    // Enhanced compass logic with icon switching
+    function getCompassRotation() {
+        const target = controls.target;
+        const cameraPos = camera.position;
+        
+        // Calculate the angle from target to camera (in XZ plane)
+        const deltaX = cameraPos.x - target.x;
+        const deltaZ = cameraPos.z - target.z;
+        
+        // Get angle in radians, then convert to degrees
+        let cameraBearing = (Math.atan2(deltaX, deltaZ) * 180 / Math.PI + 360) % 360;
+        
+        // Calculate rotation needed to point arrow to configured north direction
+        // Subtract camera bearing from north direction to get relative rotation
+        let arrowRotation = (parameters.compass.northDirection - cameraBearing + 360) % 360;
+        
+        return arrowRotation;
+    }
+
+    function updateCompassIcon() {
+        if (!compassIcon) return;
+        
+        const target = controls.target;
+        const cameraPos = camera.position;
+        
+        // Calculate the angle from target to camera (in XZ plane)
+        const deltaX = cameraPos.x - target.x;
+        const deltaZ = cameraPos.z - target.z;
+        
+        // Get camera bearing in degrees (where camera is looking FROM)
+        let cameraBearing = (Math.atan2(deltaX, deltaZ) * 180 / Math.PI + 360) % 360;
+        
+        // FIXED: Compass should rotate to always point toward north relative to camera view
+        // Try inverted rotation direction to fix the east/west issue
+        let iconRotation = (cameraBearing - parameters.compass.northDirection + 360) % 360;
+        
+        // Check if camera is pointing at north (difference between camera bearing and north direction)
+        let bearingDifference = Math.abs(cameraBearing - parameters.compass.northDirection);
+        if (bearingDifference > 180) {
+            bearingDifference = 360 - bearingDifference; // Handle wrapping around 360°
+        }
+        
+        const tolerance = 15; // Degrees tolerance for "pointing at north"
+        const isPointingAtNorth = bearingDifference <= tolerance;
+        
+        // Debug logging
+        console.log('Camera Bearing:', cameraBearing.toFixed(1), 
+                   'North Direction:', parameters.compass.northDirection, 
+                   'Bearing Diff:', bearingDifference.toFixed(1), 
+                   'Pointing at North:', isPointingAtNorth,
+                   'Icon Rotation:', iconRotation.toFixed(1));
+        
+        // Icon URLs
+        const outlineIcon = 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/NorthOutline.svg';
+        const filledIcon = 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/NorthFilled.svg';
+        
+        // Determine target icon: filled when pointing at north, outline otherwise
+        const targetSrc = isPointingAtNorth ? filledIcon : outlineIcon;
+        const currentSrc = compassIcon.src;
+        
+        // Switch icon if needed (check filename instead of full URL)
+        const currentFilename = currentSrc.split('/').pop();
+        const targetFilename = targetSrc.split('/').pop();
+        
+        if (currentFilename !== targetFilename) {
+            console.log('Switching from', currentFilename, 'to', targetFilename);
+            compassIcon.src = targetSrc; // Direct switch for now, no animation
+        }
+        
+        // Apply rotation - compass always points to north (77° in your case)
+        compassIcon.style.transform = `rotate(${iconRotation}deg)`;
+    }
+
+    // Smooth camera animation to face north
+    function animateCameraToNorth() {
+        if (isAnimatingToNorth) return; // Prevent multiple animations
+        
+        // Calculate target camera position to face north
+        const target = controls.target;
+        const currentRadius = camera.position.distanceTo(target);
+        
+        // Convert north direction to radians
+        const northRadians = MathUtils.degToRad(parameters.compass.northDirection);
+        
+        // Calculate target position (camera looking toward north)
+        targetCameraPosition.set(
+            target.x + Math.sin(northRadians) * currentRadius,
+            camera.position.y, // Keep same height
+            target.z + Math.cos(northRadians) * currentRadius
+        );
+        
+        // Store starting position
+        startCameraPosition.copy(camera.position);
+        
+        // Start animation
+        isAnimatingToNorth = true;
+        animationStartTime = performance.now();
+        autoRotate = false; // Disable auto-rotation during animation
+        
+        console.log('Animating camera to north. Target position:', targetCameraPosition);
+    }
+
+    // Smooth easing function (ease-out cubic)
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    // Update camera animation in the main animation loop
+    function updateCameraAnimation() {
+        if (!isAnimatingToNorth) return;
+        
+        const elapsed = performance.now() - animationStartTime;
+        const progress = Math.min(elapsed / animationDuration, 1);
+        const easedProgress = easeOutCubic(progress);
+        
+        // Interpolate camera position
+        camera.position.lerpVectors(startCameraPosition, targetCameraPosition, easedProgress);
+        
+        // Update controls target to maintain smooth interaction
+        camera.lookAt(controls.target);
+        
+        // Animation complete
+        if (progress >= 1) {
+            isAnimatingToNorth = false;
+            console.log('Camera animation to north complete');
+        }
+    }
+
+    function animate() {
+        if (autoRotate) {
+        angle += parameters.animation.speed;
+        const c = parameters.animation.center;
+
+        camera.position.x = c.x + Math.sin(angle) * parameters.animation.startRadius;
+        camera.position.z = c.z + Math.cos(angle) * parameters.animation.startRadius;
+        camera.position.y = c.y + parameters.camera.startPosition.y;
+
+        camera.lookAt(controls.target);
+    }
+
+        // Make normal hotspot text always face the camera
+        hotspots.forEach(hotspot => {
+            hotspot.textPlane.lookAt(camera.position);
+        });
+
+        // Make "Sold" hotspot text always face the camera
+        soldHotspots.forEach(sold => {
+            sold.textPlane.lookAt(camera.position);
+        });
+
+        tapDots.forEach(tapDot => {
+            tapDot.iconMesh.lookAt(camera.position);
+            let direction = new Vector3().subVectors(camera.position, tapDot.dot.position).normalize();
+            let tapDotRadius = tapDotBaseSize * (tapDot.scale || 1);
+            let offsetDistance = tapDotRadius + 0.02;
+            tapDot.iconMesh.position.copy(tapDot.dot.position).add(direction.multiplyScalar(offsetDistance));
+        });
+
+        // Update compass icon with smart switching and center rotation
+        updateCompassIcon();
+
+        // Update camera animation if active
+        updateCameraAnimation();
+
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    }
+
+    controls.addEventListener('start', () => autoRotate = false);
+    window.addEventListener('touchstart', () => autoRotate = false);
+
+    window.addEventListener('click', (event) => {
+        const x = event.clientX;
+        const y = event.clientY;
+        renderHiddenCanvas();
+        const pixelData = hiddenContext.getImageData(x, y, 1, 1).data;
+        const tappedColor = `#${pixelData[0].toString(16).padStart(2, '0')}${pixelData[1].toString(16).padStart(2, '0')}${pixelData[2].toString(16).padStart(2, '0')}`;
+        console.log(`Tapped color: ${tappedColor}`);
+
+        let closestDot = null;
+        let closestDistance = Infinity;
+        tapDots.forEach(tapDot => {
+            let screenPos = tapDot.dot.position.clone().project(camera);
+            let dotX = (screenPos.x + 1) / 2 * window.innerWidth;
+            let dotY = -(screenPos.y - 1) / 2 * window.innerHeight;
+            let distance = Math.sqrt(Math.pow(dotX - x, 2) + Math.pow(dotY - y, 2));
+            if (distance < closestDistance && distance < baseTapDetectionRadius * (tapDot.scale || 1)) {
+                closestDot = tapDot;
+                closestDistance = distance;
+            }
+        });
+
+        if (closestDot) {
+            console.log(`Tapped TapDot: ${closestDot.index}`);
+            let coloredSquare = document.createElement('div');
+            coloredSquare.style.position = 'absolute';
+            coloredSquare.style.top = '10px';
+            coloredSquare.style.left = '10px';
+            coloredSquare.style.width = '50px';
+            coloredSquare.style.height = '50px';
+            coloredSquare.style.backgroundColor = closestDot.color;
+            coloredSquare.style.color = 'white';
+            coloredSquare.style.display = 'flex';
+            coloredSquare.style.alignItems = 'center';
+            coloredSquare.style.justifyContent = 'center';
+            coloredSquare.style.fontSize = '20px';
+            coloredSquare.style.fontWeight = 'bold';
+            coloredSquare.textContent = `Dot ${closestDot.index}`;
+            document.body.appendChild(coloredSquare);
+
+            setTimeout(() => {
+                document.body.removeChild(coloredSquare);
+            }, 1000);
+        } else {
+            console.log('No TapDot detected');
+        }
+    });
+
+    // Start animation once icons are loaded
+    // (If no icons, we simply call animate() immediately)
+    if (iconsToLoad.length === 0) {
+        animate();
+    }
+
+    // Edgewood Farm UI JavaScript - Ported with Extreme Care
+    
+    const detailsButton = document.getElementById('detailsButton');
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    const compassButton = document.getElementById('compassButton');
+    const compassIcon = document.getElementById('compassIcon');
+    const detailsBox = document.getElementById('detailsBox');
+    const overlayUI = document.getElementById('overlay-ui');
+    const detailsContent = document.getElementById('detailsContent');
+    const customThumb = document.getElementById('customThumb');
+    const customScrollbar = document.getElementById('customScrollbar');
+    const detailsInner = document.getElementById('detailsInner');
+    const menuContainer = document.getElementById('menuContainer');
+
+    let isDetailsOpen = false;
+    let isDraggingThumb = false;
+    let dragStartY = 0;
+    let startScrollTop = 0;
+    let scrollbarFadeTimeout;
+    
+    // Camera animation variables
+    let isAnimatingToNorth = false;
+    let animationStartTime = 0;
+    let startCameraPosition = new Vector3();
+    let targetCameraPosition = new Vector3();
+    const animationDuration = 1500; // 1.5 seconds
+
+    // Original base spacing and sizes:
+    const baseMenuLeft = 20;
+    const baseMenuBottom = 20;
+    const baseDetailsTop = 60;
+    const baseDetailsBottom = 60;
+    const baseDetailsLeft = 20;
+    const baseDetailsRight = 20;
+
+    // Original font sizes:
+    const baseH1 = 30;
+    const baseP = 17;
+    const baseDisclaimer = 10;
+
+    // Original details-inner padding:
+    const basePaddingTopBottom = 40;
+    const basePaddingLeftRight = 30;
+
+    // Original menu-container dimensions, padding, and gap (for scaling):
+    const baseMenuWidth = 105;
+    const baseMenuHeight = 59;
+    const baseMenuPadding = 7;
+    const baseMenuGap = 1;
+    const baseMenuBorderRadius = 30;
+    const baseButtonWidth = 45;
+    const baseButtonHeight = 45;
+
+    function applyLayoutMode() {
+        const ratio = window.innerWidth / window.innerHeight;
+        let mode;
+        if (ratio > 4/3) {
+            mode = 'desktop';
+        } else if (ratio >= 3/4 && ratio <= 4/3) {
+            mode = 'tablet';
+        } else {
+            mode = 'mobile';
+        }
+
+        let menuLeft = baseMenuLeft;
+        let menuBottom = baseMenuBottom;
+        let detailsTop = baseDetailsTop;
+        let detailsBottom = baseDetailsBottom;
+        let detailsLeft = baseDetailsLeft;
+        let detailsRight = baseDetailsRight;
+        let scaleFactor = 1.0;
+        let h1Size = baseH1;
+        let pSize = baseP;
+        let disclaimerSize = baseDisclaimer;
+        let innerPaddingTopBottom = basePaddingTopBottom;
+        let innerPaddingLeftRight = basePaddingLeftRight;
+
+        if (mode === 'desktop') {
+            menuLeft += 20; 
+            menuBottom += 20;
+            detailsLeft += 20;
+            detailsRight += 20;
+            detailsTop += 20;
+            detailsBottom += 20;
+        } else if (mode === 'tablet') {
+            scaleFactor = 0.9;
+            h1Size = Math.round(baseH1 * 0.9);
+            pSize = Math.round(baseP * 0.9);
+            disclaimerSize = Math.round(baseDisclaimer * 0.9);
+        } else {
+            // Mobile
+            menuLeft = baseMenuLeft - 5;
+            menuBottom = baseMenuBottom - 5;
+            detailsLeft = baseDetailsLeft - 5;
+            detailsRight = baseDetailsRight - 5;
+            detailsTop = baseDetailsTop - 5;
+            detailsBottom = baseDetailsBottom - 10;
+            scaleFactor = 0.8;
+            h1Size = Math.round(baseH1 * 0.8);
+            pSize = Math.round(baseP * 0.8);
+            disclaimerSize = Math.round(baseDisclaimer * 0.8);
+            innerPaddingTopBottom = basePaddingTopBottom - 7;
+            innerPaddingLeftRight = basePaddingLeftRight - 15;
+        }
+
+        menuContainer.style.bottom = menuBottom + 'px';
+        menuContainer.style.left = menuLeft + 'px';
+
+        menuContainer.style.webkitTransform = 'scale(' + scaleFactor + ')';
+        menuContainer.style.transform = 'scale(' + scaleFactor + ')';
+
+        detailsBox.style.top = detailsTop + 'px';
+        detailsBox.style.bottom = detailsBottom + 'px';
+        detailsBox.style.left = detailsLeft + 'px';
+        detailsBox.style.right = detailsRight + 'px';
+        detailsBox.style.maxHeight = '';
+
+        const h1s = detailsBox.querySelectorAll('h1');
+        h1s.forEach(h => { h.style.fontSize = h1Size + 'px'; });
+
+        const ps = detailsBox.querySelectorAll('p');
+        ps.forEach(pElem => { pElem.style.fontSize = pSize + 'px'; });
+
+        const disclaimers = detailsBox.querySelectorAll('.legal-disclaimer');
+        disclaimers.forEach(d => { d.style.fontSize = disclaimerSize + 'px'; });
+
+        detailsInner.style.padding = innerPaddingTopBottom + 'px ' + innerPaddingLeftRight + 'px';
+    }
+
+    function animateIconChange(imgElement, newSrc) {
+        imgElement.style.animation = 'none';
+        imgElement.offsetHeight;
+        imgElement.style.webkitAnimation = 'shrinkIcon 0.1s ease forwards';
+        imgElement.style.animation = 'shrinkIcon 0.1s ease forwards';
+
+        function handleShrink(e) {
+            if (e.animationName === 'shrinkIcon') {
+                if (newSrc) imgElement.src = newSrc;
+                imgElement.style.animation = 'none';
+                imgElement.style.webkitAnimation = 'none';
+                imgElement.offsetHeight; 
+                imgElement.style.webkitAnimation = 'expandIcon 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+                imgElement.style.animation = 'expandIcon 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+            } else if (e.animationName === 'expandIcon') {
+                imgElement.removeEventListener('animationend', handleShrink);
+                imgElement.removeEventListener('webkitAnimationEnd', handleShrink);
+            }
+        }
+
+        imgElement.addEventListener('animationend', handleShrink);
+        imgElement.addEventListener('webkitAnimationEnd', handleShrink);
+    }
+
+    function openDetails() {
+        isDetailsOpen = true;
+        detailsBox.classList.add('show');
+        animateIconChange(detailsButton.querySelector('img'), 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/Close2IconDefault.svg');
+        overlayUI.classList.add('active');
+        updateScrollbar();
+    }
+
+    function closeDetails() {
+        isDetailsOpen = false;
+        detailsBox.classList.remove('show');
+        animateIconChange(detailsButton.querySelector('img'), 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/DetailsIconDefault.svg');
+        overlayUI.classList.remove('active');
+    }
+
+    detailsButton.addEventListener('mouseup', () => {
+        const img = detailsButton.querySelector('img');
+        if (isDetailsOpen) {
+            animateIconChange(img, 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/DetailsIconDefault.svg');
+            closeDetails();
+        } else {
+            animateIconChange(img, 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/Close2IconDefault.svg');
+            openDetails();
+        }
+    });
+
+    // Add click listener for compass button
+    compassButton.addEventListener('mouseup', () => {
+        console.log('Compass clicked - animating to north');
+        animateCameraToNorth();
+    });
+
+    fullscreenButton.addEventListener('mouseup', async () => {
+        const img = fullscreenButton.querySelector('img');
+        let newSrc;
+        if (document.fullscreenElement) {
+            await document.exitFullscreen().catch(() => {});
+            newSrc = 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/FullScreenIconDefault.svg';
+        } else {
+            try {
+                await document.documentElement.requestFullscreen();
+                newSrc = 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/MinimizeIconDefault.svg';
+            } catch (err) {
+                console.error(`Error: ${err.message} (${err.name})`);
+                newSrc = 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/FullScreenIconDefault.svg';
+            }
+        }
+        animateIconChange(img, newSrc);
+    });
+
+    function updateFullscreenIcon() {
+        const img = fullscreenButton.querySelector('img');
+        if (document.fullscreenElement) {
+            animateIconChange(img, 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/MinimizeIconDefault.svg');
+        } else {
+            animateIconChange(img, 'https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/FullScreenIconDefault.svg');
+        }
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenIcon);
+
+    overlayUI.addEventListener('click', () => {
+        if (isDetailsOpen) {
+            closeDetails();
+        }
+    });
+
+    function updateScrollbar() {
+        const contentHeight = detailsContent.scrollHeight;
+        const visibleHeight = detailsContent.clientHeight;
+        const detailsBoxRect = detailsBox.getBoundingClientRect();
+        
+        const topMargin = 30;
+        const bottomMargin = 30;
+        const trackHeight = detailsBoxRect.height - (topMargin + bottomMargin); 
+        const thumbHeight = Math.max((visibleHeight / contentHeight) * trackHeight, 20);
+        customThumb.style.height = thumbHeight + 'px';
+
+        const scrollRatio = (detailsContent.scrollTop / (contentHeight - visibleHeight)) || 0;
+        const thumbMaxY = trackHeight - thumbHeight;
+        const thumbY = topMargin + thumbMaxY * scrollRatio;
+        customThumb.style.top = thumbY + 'px';
+    }
+
+    detailsContent.addEventListener('scroll', () => {
+        updateScrollbar();
+        showScrollbar();
+    });
+
+    customThumb.addEventListener('mousedown', (e) => {
+        isDraggingThumb = true;
+        dragStartY = e.clientY;
+        startScrollTop = detailsContent.scrollTop;
+        document.addEventListener('mousemove', onThumbDrag);
+        document.addEventListener('mouseup', onThumbRelease);
+        e.preventDefault();
+    });
+
+    function onThumbDrag(e) {
+        if (!isDraggingThumb) return;
+        const topMargin = 30;
+        const bottomMargin = 30;
+        const detailsBoxRect = detailsBox.getBoundingClientRect();
+        const trackHeight = detailsBoxRect.height - (topMargin + bottomMargin);
+        const contentHeight = detailsContent.scrollHeight;
+        const visibleHeight = detailsContent.clientHeight;
+
+        const deltaY = e.clientY - dragStartY;
+        const thumbHeight = parseFloat(customThumb.style.height);
+        const thumbMaxY = trackHeight - thumbHeight;
+        const scrollable = contentHeight - visibleHeight;
+        const scrollRatio = scrollable / thumbMaxY;
+
+        detailsContent.scrollTop = startScrollTop + deltaY * scrollRatio;
+        updateScrollbar();
+        showScrollbar();
+    }
+
+    function onThumbRelease() {
+        isDraggingThumb = false;
+        document.removeEventListener('mousemove', onThumbDrag);
+        document.removeEventListener('mouseup', onThumbRelease);
+        fadeOutScrollbarLater();
+    }
+
+    detailsBox.addEventListener('mousemove', (e) => {
+        const detailsBoxRect = detailsBox.getBoundingClientRect();
+        const distanceFromRight = detailsBoxRect.right - e.clientX;
+        if (distanceFromRight < 30) {
+            showScrollbar();
+        } else {
+            fadeOutScrollbarLater();
+        }
+    });
+
+    function showScrollbar() {
+        customScrollbar.style.opacity = '1';
+        fadeOutScrollbarLater();
+    }
+
+    function fadeOutScrollbarLater() {
+        if (scrollbarFadeTimeout) clearTimeout(scrollbarFadeTimeout);
+        scrollbarFadeTimeout = setTimeout(() => {
+            if (!isDraggingThumb) {
+                customScrollbar.style.opacity = '0';
+            }
+        }, 1500);
+    }
+
+    customScrollbar.style.opacity = '0';
+
+    // Detect if the device is touch-capable
+    const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+    // If it's a touch device, disable custom scrollbar and revert to native scrollbar
+    if (isTouchDevice) {
+        // Hide the custom scrollbar entirely
+        customScrollbar.style.display = 'none';
+        
+        // Remove the "no visible scrollbar" styles so that native scrollbar can appear
+        detailsContent.classList.add('touch-scrollbars');
+        // Also ensure overflow is set to auto to allow native scrolling
+        detailsContent.style.overflowY = 'auto';
+    }
+
+    // Handle hover circle for touch devices: add/remove 'active' on touchstart/touchend
+    document.querySelectorAll('.menu-button').forEach(btn => {
+        btn.addEventListener('touchstart', () => {
+            btn.classList.add('active');
+        }, {passive: true});
+
+        btn.addEventListener('touchend', () => {
+            btn.classList.remove('active');
+        }, {passive: true});
+
+        btn.addEventListener('touchcancel', () => {
+            btn.classList.remove('active');
+        }, {passive: true});
+    });
+
+    // Handle hover circle for fullscreen button in details box
+    if (fullscreenButton) {
+        fullscreenButton.addEventListener('touchstart', () => {
+            fullscreenButton.classList.add('active');
+        }, {passive: true});
+
+        fullscreenButton.addEventListener('touchend', () => {
+            fullscreenButton.classList.remove('active');
+        }, {passive: true});
+
+        fullscreenButton.addEventListener('touchcancel', () => {
+            fullscreenButton.classList.remove('active');
+        }, {passive: true});
+    }
+
+    // Apply layout mode on load and on resize
+    window.addEventListener('resize', applyLayoutMode);
+    window.addEventListener('load', () => {
+        applyLayoutMode();
+        updateScrollbar();
+    });
+
+    // Initialize layout mode
+    applyLayoutMode();
+    
+    </script>
+</body>
+</html>
