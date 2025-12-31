@@ -43,173 +43,162 @@
             padding: 10px;
         }
 
-        /* Render control panel (bottom-right) - Minimalist Notion-style Liquid Glass */
+        /* Render control panel (bottom-right) - Minimalist Notion-style Liquid Glass - Compact */
         #splatControlPanel {
             position: absolute;
             right: 20px;
             bottom: 20px;
-            width: 320px;
-            max-height: 85vh;
+            width: 340px;
+            max-height: 90vh;
             overflow-y: auto;
             background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 16px 18px;
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 14px;
             color: rgba(255, 255, 255, 0.95);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             z-index: 10;
             box-sizing: border-box;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+        #splatControlPanel::-webkit-scrollbar {
+            width: 4px;
+        }
+        #splatControlPanel::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
         }
         #splatControlPanel h3 {
-            margin: 0 0 16px 0;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: -0.2px;
-            color: rgba(255, 255, 255, 0.98);
+            margin: 0 0 10px 0;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
-            font-size: 11px;
-            opacity: 0.7;
         }
         .splat-section {
-            margin-bottom: 20px;
-            padding-bottom: 16px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .splat-section:last-child {
+        .splat-section:last-of-type {
             border-bottom: none;
             margin-bottom: 0;
         }
         .splat-section-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             color: rgba(255, 255, 255, 0.9);
-            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .control-group {
-            margin-bottom: 10px;
-        }
-        .control-group:last-child {
-            margin-bottom: 0;
+            margin-bottom: 6px;
         }
         .control-group label {
             display: block;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.65);
-            margin-bottom: 6px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
             font-weight: 500;
-            letter-spacing: 0.1px;
         }
         .control-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 6px;
+            margin-bottom: 4px;
         }
-        .control-row:last-child {
-            margin-bottom: 0;
+        .control-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .input-with-label {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 2px 6px;
+            gap: 2px;
+        }
+        .input-with-label span {
+            font-size: 8px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.25);
+            width: 14px; /* Slightly wider for RX/RY/RZ */
+            text-align: center;
+        }
+        .input-with-label input[type="number"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 4px 0;
+            color: #fff;
+            font-size: 11px;
+            outline: none;
+            font-variant-numeric: tabular-nums;
         }
         .control-row input[type="range"] {
             flex: 1;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1px;
             outline: none;
             -webkit-appearance: none;
         }
         .control-row input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.9);
+            width: 10px;
+            height: 10px;
+            background: #fff;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
-        .control-row input[type="range"]::-webkit-slider-thumb:hover {
-            background: rgba(255, 255, 255, 1);
-            transform: scale(1.15);
-        }
-        .control-row input[type="range"]::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-        }
-        .control-row input[type="number"] {
-            width: 70px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+        .control-row input[type="number"].radius-num {
+            width: 45px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 6px;
-            padding: 6px 8px;
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 12px;
-            font-variant-numeric: tabular-nums;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-        .control-row input[type="number"]:focus {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
+            padding: 4px 6px;
+            color: #fff;
+            font-size: 11px;
+            text-align: right;
         }
         .control-row select {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 6px;
-            padding: 6px 8px;
-            font-size: 12px;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .control-row select:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        .control-row select:focus {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-        .control-row .value {
-            width: 50px;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
+            padding: 4px 6px;
+            color: #fff;
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
+            outline: none;
         }
         .radio-row {
             display: flex;
-            gap: 12px;
-            margin-top: 12px;
-            font-size: 12px;
-        }
-        .radio-row > span {
-            color: rgba(255, 255, 255, 0.65);
-            font-weight: 500;
+            gap: 10px;
+            margin-top: 4px;
         }
         .radio-row label {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.85);
-            transition: color 0.2s ease;
-        }
-        .radio-row label:hover {
-            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
         }
         .radio-row input[type="radio"] {
-            cursor: pointer;
-            accent-color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            accent-color: #fff;
         }
         
         /* Compass Button - Commented out for later use */
@@ -737,10 +726,14 @@
             <div class="splat-section-title">Splat 1</div>
             
             <div class="control-group">
-                <label>Radius</label>
+                <label>Radius & Scale</label>
                 <div class="control-row">
-                    <input type="range" id="splat1Radius" min="0.05" max="50" step="0.1">
-                    <input type="number" id="splat1RadiusNum" min="0.05" max="50" step="0.1">
+                    <input type="range" id="splat1Radius" min="0.05" max="100" step="0.1">
+                    <input type="number" id="splat1RadiusNum" class="radius-num" step="0.1">
+                </div>
+                <div class="control-row">
+                    <input type="range" id="splat1Scale" min="0.1" max="10" step="0.01">
+                    <input type="number" id="splat1ScaleNum" class="radius-num" step="0.01">
                 </div>
             </div>
             
@@ -755,34 +748,16 @@
             </div>
             
             <div class="control-group">
-                <label>Position</label>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">X</label>
-                    <input type="number" id="splat1PosX" step="0.01">
+                <label>Position & Rotation</label>
+                <div class="control-row-grid">
+                    <div class="input-with-label"><span>X</span><input type="number" id="splat1PosX" step="0.01"></div>
+                    <div class="input-with-label"><span>Y</span><input type="number" id="splat1PosY" step="0.01"></div>
+                    <div class="input-with-label"><span>Z</span><input type="number" id="splat1PosZ" step="0.01"></div>
                 </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Y</label>
-                    <input type="number" id="splat1PosY" step="0.01">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Z</label>
-                    <input type="number" id="splat1PosZ" step="0.01">
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <label>Rotation (degrees)</label>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">X</label>
-                    <input type="number" id="splat1RotX" step="0.1">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Y</label>
-                    <input type="number" id="splat1RotY" step="0.1">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Z</label>
-                    <input type="number" id="splat1RotZ" step="0.1">
+                <div class="control-row-grid">
+                    <div class="input-with-label"><span>RX</span><input type="number" id="splat1RotX" step="0.1"></div>
+                    <div class="input-with-label"><span>RY</span><input type="number" id="splat1RotY" step="0.1"></div>
+                    <div class="input-with-label"><span>RZ</span><input type="number" id="splat1RotZ" step="0.1"></div>
                 </div>
             </div>
         </div>
@@ -792,10 +767,14 @@
             <div class="splat-section-title">Splat 2</div>
             
             <div class="control-group">
-                <label>Radius</label>
+                <label>Radius & Scale</label>
                 <div class="control-row">
-                    <input type="range" id="splat2Radius" min="0.05" max="50" step="0.1">
-                    <input type="number" id="splat2RadiusNum" min="0.05" max="50" step="0.1">
+                    <input type="range" id="splat2Radius" min="0.05" max="100" step="0.1">
+                    <input type="number" id="splat2RadiusNum" class="radius-num" step="0.1">
+                </div>
+                <div class="control-row">
+                    <input type="range" id="splat2Scale" min="0.1" max="10" step="0.01">
+                    <input type="number" id="splat2ScaleNum" class="radius-num" step="0.01">
                 </div>
             </div>
             
@@ -810,34 +789,16 @@
             </div>
             
             <div class="control-group">
-                <label>Position</label>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">X</label>
-                    <input type="number" id="splat2PosX" step="0.01">
+                <label>Position & Rotation</label>
+                <div class="control-row-grid">
+                    <div class="input-with-label"><span>X</span><input type="number" id="splat2PosX" step="0.01"></div>
+                    <div class="input-with-label"><span>Y</span><input type="number" id="splat2PosY" step="0.01"></div>
+                    <div class="input-with-label"><span>Z</span><input type="number" id="splat2PosZ" step="0.01"></div>
                 </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Y</label>
-                    <input type="number" id="splat2PosY" step="0.01">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Z</label>
-                    <input type="number" id="splat2PosZ" step="0.01">
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <label>Rotation (degrees)</label>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">X</label>
-                    <input type="number" id="splat2RotX" step="0.1">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Y</label>
-                    <input type="number" id="splat2RotY" step="0.1">
-                </div>
-                <div class="control-row">
-                    <label style="width: 20px; margin: 0;">Z</label>
-                    <input type="number" id="splat2RotZ" step="0.1">
+                <div class="control-row-grid">
+                    <div class="input-with-label"><span>RX</span><input type="number" id="splat2RotX" step="0.1"></div>
+                    <div class="input-with-label"><span>RY</span><input type="number" id="splat2RotY" step="0.1"></div>
+                    <div class="input-with-label"><span>RZ</span><input type="number" id="splat2RotZ" step="0.1"></div>
                 </div>
             </div>
         </div>
@@ -1246,6 +1207,30 @@
         if (input) input.value = degValue.toFixed(1);
     }
 
+    function updateSplatScale(id, value) {
+        const cfg = splatConfigs[id];
+        const target = splats[id];
+        const scaleValue = parseFloat(value);
+        if (cfg) cfg.scale = scaleValue;
+        if (target) {
+            target.scale.setScalar(scaleValue);
+        }
+        const slider = document.getElementById(`${id}Scale`);
+        const numInput = document.getElementById(`${id}ScaleNum`);
+        if (slider) slider.value = scaleValue;
+        if (numInput) numInput.value = scaleValue.toFixed(2);
+    }
+
+    // Origin Marker (1 unit diameter, dark red, 50% opacity)
+    const originMarkerGeometry = new SphereGeometry(0.5, 32, 32); // 0.5 radius = 1 unit diameter
+    const originMarkerMaterial = new MeshBasicMaterial({ 
+        color: 0x8B0000, 
+        transparent: true, 
+        opacity: 0.5 
+    });
+    const originMarker = new Mesh(originMarkerGeometry, originMarkerMaterial);
+    scene.add(originMarker);
+
     // Background precedence between splats
     let backgroundOwner = 'splat1';
     function applyBackgroundOwner(owner) {
@@ -1259,8 +1244,8 @@
 
     // Wire UI controls
     const panelBindings = [
-        { id: 'splat1', radiusEl: 'splat1Radius', radiusNumEl: 'splat1RadiusNum', modeEl: 'splat1Mode' },
-        { id: 'splat2', radiusEl: 'splat2Radius', radiusNumEl: 'splat2RadiusNum', modeEl: 'splat2Mode' }
+        { id: 'splat1', radiusEl: 'splat1Radius', radiusNumEl: 'splat1RadiusNum', modeEl: 'splat1Mode', scaleEl: 'splat1Scale', scaleNumEl: 'splat1ScaleNum' },
+        { id: 'splat2', radiusEl: 'splat2Radius', radiusNumEl: 'splat2RadiusNum', modeEl: 'splat2Mode', scaleEl: 'splat2Scale', scaleNumEl: 'splat2ScaleNum' }
     ];
 
     // Initialize all controls with current config values
@@ -1271,6 +1256,8 @@
             updateSplatRadius(id, cfg.culling.radius);
             // Initialize mode
             updateSplatMode(id, cfg.culling.mode);
+            // Initialize scale
+            updateSplatScale(id, cfg.scale);
             // Initialize position
             ['x', 'y', 'z'].forEach(axis => {
                 const input = document.getElementById(`${id}Pos${axis.toUpperCase()}`);
@@ -1309,6 +1296,32 @@
                 if (!isNaN(val)) {
                     updateSplatRadius(id, val);
                     if (radiusSlider) radiusSlider.value = val;
+                }
+            });
+        }
+    });
+
+    // Wire scale controls (slider + number input)
+    panelBindings.forEach(({ id, scaleEl, scaleNumEl }) => {
+        const scaleSlider = document.getElementById(scaleEl);
+        const scaleNum = document.getElementById(scaleNumEl);
+        
+        if (scaleSlider) {
+            scaleSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                    updateSplatScale(id, val);
+                    if (scaleNum) scaleNum.value = val.toFixed(2);
+                }
+            });
+        }
+        
+        if (scaleNum) {
+            scaleNum.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                    updateSplatScale(id, val);
+                    if (scaleSlider) scaleSlider.value = val;
                 }
             });
         }
